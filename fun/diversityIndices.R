@@ -1,3 +1,7 @@
+###TODO
+#https://link.springer.com/article/10.1007/s10980-012-9806-4
+
+
 # foliage height density
 # Originally MacArthur & MacArthur (1961)
 # Implemented after:
