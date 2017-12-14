@@ -141,3 +141,29 @@ getSessionPathes<- function(filepath_git,
   } # end of moc=TRUE
 
 }
+
+#'@title Generates a variable with a certain value in the R environment
+#'@name makGlobalVar
+#' @description  Generates a variable with a certain value in the R environment
+#' @param name character string name of the variable
+#' @param value character string value of the variable
+#'@export makGlobalVar 
+#'@examples
+#' \dontrun{
+#'
+#' # creates the global var \code{pathToData} with the value \code{~/home/data}
+#' makGlobalVar("pathToData","~/home/data") 
+#' 
+#' }
+#' 
+makGlobalVar <- function(name,value) {
+  if (!exists("GiEnv")) GiEnv <- new.env(parent=globalenv())  
+  if (exists(name, envir = GiEnv)) {
+    #warning(paste0("The variable '", name,"' already exist in .GlobalEnv"))
+    assign(name, value, envir = GiEnv, inherits = TRUE)
+    #cat("add variable ",name,"=",value," to global GiEnv\n")
+  } else {
+    assign(name, value, envir = GiEnv, inherits = TRUE)
+    #cat("add variable ",name,"=",value," to global GiEnv\n")
+  } 
+}

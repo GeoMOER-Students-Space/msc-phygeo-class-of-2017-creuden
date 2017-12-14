@@ -28,7 +28,7 @@
 ### -------------------------- setup the environment --------------------------
 
 #--> library requirements
-require(link2GI)
+devtools::install_github("gisma/link2GI", ref = "master", dependencies = TRUE)
 require(gdalUtils)
 require(rgrass7)
 require(raster)
@@ -79,6 +79,10 @@ gdal<- link2GI::linkgdalUtils()
 
 #--> set working directory (just if you missed using golbal path variables as a backup)
 setwd(gi_run)
+if (laz){
+  lazfiles<-list.files(gi_input, pattern=".laz$", full.names=TRUE,recursive = TRUE) 
+  lasTool(  tool="las2las",dirname(lazfiles)[1])
+}
 
 ### ------------------------- end environment setup --------------------------
 ### ------------------
@@ -86,7 +90,7 @@ setwd(gi_run)
 ### ---------------------------- Thematic  Settings ----------------------------
 
 #--> Create a list containing the las files in the input folder
-lasfiles<-list.files(gi_input, pattern=".las$", full.names=TRUE) 
+lasfiles<-list.files(gi_input, pattern=".las$", full.names=FALSE) 
 
 #--> use the GRASS way
 useGRASS <- TRUE
@@ -144,8 +148,8 @@ if (useGRASS){
   #       of NA values. second best simple methodis to use the "min" function
   for (j in 1:(length(lasfiles))){
 
-    dem_grass_lidar(path = gi_run, 
-                    inFN = "full_point_cloud.las", 
+    dem_grass_lidar(path = gi_input, 
+                    inFN = lasfiles[j], 
                     outFN = paste0(j, "_dem"),
                     grass_lidar_method = "min",
                     res = gridsize)
@@ -153,7 +157,7 @@ if (useGRASS){
     #--> slice the data horizontally according to the provide gi_input = NULL, gi_input = NULL,d heightClassList
     #      Reduction to a base raster is applied
     for (i in heightClassList){
-      heightClasses(input = lasfiles[j], 
+      heightClasses(input = paste0(gi_input,lasfiles[j]), 
                     outFN = paste0("class",i[1],i[2]),
                     grass_lidar_method = "n",
                     dem_base = paste0(j, "_dem"),
@@ -162,7 +166,7 @@ if (useGRASS){
     }
     
     for (k in statList ){
-    medmax(input = lasfiles[j], 
+    medmax(input = paste0(gi_input,lasfiles[j]), 
            outFN = paste0(k,"_veg"),
            grass_lidar_method = k,
            dem_base =  paste0(j, "_dem"),

@@ -15,9 +15,6 @@
 #'@param bulge  default is 1.5. 'A parameter to filter spikes it is set to a step_size/10 and then clamped into the range from 1.0 to 2.0
 #'@param step_size  default is 25 meter. LAStools key words if \code{city},\code{town},\code{metro},\code{nature},\code{wilderness} or experiment with free values
 #'@param sub_size = "8", default is 8 meter. LAStools key words if \code{extra_coarse},\code{coarse},\code{fine},\code{extra_fine},\code{ultra_fine},\code{hyper_fine} or experiment with free values
-#'@param ras_minalt default is \code{0}, minimum DTM altitude accepted
-#'@param ras_maxalt default is \code{4000}, maximum DTM altitude accepted
-#'@param ras_area default \code{FALSE} generate polygon of valid DTM data
 #'@param cores number of cores that will be used
 #'@param proj4  default is EPSG 32632 any valid proj4 string that is assumingly the correct one
 
@@ -37,20 +34,19 @@
 
 lasTool <- function(  tool="lasinfo",
                       lasDir = NULL,
-                      thin_with_grid = "0.5",
+                      thin_with_grid = "1.0",
                       keep_class = "2",
                       bulge = "1.5",
                       step_size = "city",
                       sub_size = "ultra_fine",
-                      grid_size = "0.5", 
-                      ras_minalt = 0,
-                      ras_maxalt = 4000,
-                      ras_area = FALSE,
-                      projFolder = c("input/","output/","run/"),
+                      grid_size = "1.0", 
                       proj4 = "+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs",
-                      path_lastools = "LASTools/",
-                      cores = "3") {
-  paste0("wine ",fun,"LASTools/lasinfo-cli.exe ")
+                      cores = "2") {
+  path_fun<- fun
+  path_run<- gi_run
+  path_input<- gi_input
+  path_output<- gi_output
+  
   gdal <- link2GI::linkgdalUtils()
   
   # some basic checks 
@@ -58,13 +54,13 @@ lasTool <- function(  tool="lasinfo",
   lasDir <- path.expand(lasDir)
   
   # if not provided take the onboard laslib
-  if (is.null(path_lastools)) {
+  
     if (Sys.info()["sysname"] == "Windows") {
-      cmd <- path_lastools <- paste(fun, "LAStools", .Platform$file.sep  )
+      cmd <- paste0(path_fun, "LAStools", .Platform$file.sep)
     } else {
-      cmd <- paste("wine ",path_lastools <- paste(path_fun, "LAStools", .Platform$file.sep))
+      cmd <- paste0("wine ", path_fun, "LAStools", .Platform$file.sep)
     }
-  }
+  
   
   # create cmd strings
   lasinfo       <- paste(cmd,"lasinfo-cli.exe",sep = "/")
@@ -77,9 +73,9 @@ lasTool <- function(  tool="lasinfo",
   # check las / laz files laz will be preferred
   lasFileNames <- list.files(pattern = "[.]las$", path = lasDir, full.names = TRUE)
   lazFileNames <- list.files(pattern = "[.]laz$", path = lasDir, full.names = TRUE)
-  if (length(lazFileNames) > 0 ) extFN <- substr(extension(basename(lazFileNames[1])),2,4)
-  else if (length(lasFileNames) > 0) extFN <- substr(extension(basename(lasFileNames[1])),2,4)
-  else stop("no valid las or laz files found...\n")
+  #if (length(lazFileNames) > 0 ) extFN <- substr(extension(basename(lazFileNames[1])),2,4)
+  #else if (length(lasFileNames) > 0) extFN <- substr(extension(basename(lasFileNames[1])),2,4)
+  #else stop("no valid las or laz files found...\n")
   
   #sp_param <- uavRst:::getSpatialLASInfo(lasDir)
   
@@ -120,12 +116,13 @@ lasTool <- function(  tool="lasinfo",
     ### reduce data amount
     cat("\n:: reducing the point density...\n")
     ret <- system(paste0(las2las,
-                         " -i ",lasDir,"/*.",extFN,
-                         " -odix _red2 ",
-                         " -odir ",path_run,
-                         " -o",extFN,
-                         " -keep_class ",keep_class,
-                         " -thin_with_grid ",thin_with_grid), 
+                         " -i ",lasDir,"/*.laz",
+#                         " -odix  ",
+                         " -odir ",path_input,
+                         " -o","las",
+                         " -keep_class ",keep_class
+#                         " -thin_with_grid ",thin_with_grid
+), 
                   intern = TRUE, 
                   ignore.stderr = TRUE
     )
@@ -174,4 +171,27 @@ lasTool <- function(  tool="lasinfo",
                   ignore.stderr = TRUE
     )
   }
+}
+
+getSpatialLASInfo <- function(lasinfo,lasFN){
+  
+  ret <- system(paste0(lasinfo,
+                       " -i ",lasFN,
+                       " -no_check  -stdout"),intern = TRUE)
+  paste0("wine ",fun,"LASTools/lasinfo-cli.exe ")
+  spatial_params<- list() 
+  
+  tmp <- grep(pattern = "min x y z", ret, value = TRUE)
+  tmp <- unlist(strsplit(tmp, ":"))
+  tmp <- unlist(strsplit(stringr::str_trim(tmp[2]), " "))
+  spatial_params[1] <- tmp[1]
+  spatial_params[2] <- tmp[2]
+  tmp <- grep(pattern = "max x y z", ret, value = TRUE)
+  tmp <- unlist(strsplit(tmp, ":"))
+  tmp <- unlist(strsplit(stringr::str_trim(tmp[2]), " "))
+  spatial_params[3] <- tmp[1]
+  spatial_params[4] <- tmp[2]
+  #spatial_params[5] <- grep(pattern = "+proj", ret, value = TRUE)
+  
+  return(unlist(spatial_params))
 }
