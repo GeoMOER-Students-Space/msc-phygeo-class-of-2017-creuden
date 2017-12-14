@@ -10,6 +10,7 @@
 #'@param csess= current session "01",
 #'@param ccourse current course options are "gi", "rs", "da"
 #'@param moc=TRUE creates a folder structure according to the needs of the MOC courses, FALSE creates a simple project structure
+#'@param moclist = 17 defines the  folder structure
 #'\preformatted{
 #'   If moc=TRUE the following folderstructure is exported. If folders do not exist thesy will be created.
 #'.
@@ -66,7 +67,11 @@
 #'
 #'@return  createMocFolders< creates if necessary the directories and export the corresponding pathes as global variables\cr
 
-createMocFolders<- function(filepath_git,csess=15,ccourse="gi", moc=TRUE) {
+createMocFolders<- function(filepath_git,
+                            csess=15,
+                            ccourse="gi", 
+                            moc=TRUE, 
+                            moclist=17) {
   
   # switch backslash to slash and expand path to full path
   filepath_git<-gsub("\\\\", "/", path.expand(filepath_git))  
@@ -88,10 +93,14 @@ createMocFolders<- function(filepath_git,csess=15,ccourse="gi", moc=TRUE) {
   # script and function folder for each course session can be adapted 
   session_working_folder<-c("/scripts/", "/rmds/")
   # currently implemented data folders can be adapted 
+  if (moclist=="16")
   data_working_folder<-list(list("aerial/","aerial_merged/","aerial_croped/","RData/","temp/","run/","input/","filter/","aerial_rgbi/","aerial_classified/","otb_results","aerial_texture"),
                             list("RData/","temp/","run/","input/","output/"),
                             list("csv/","raw/"))  
-  
+  else if (moclist=="17")
+    data_working_folder<-list(list("run/","input/","output/"),
+                              list("run/","input/","output/","GRASS7"),
+                              list("data","csv/","raw/"))  
   if (moc) {
     # static course structure - better keep the below folders
     proj_root_git<-c(path.expand(filepath_git))

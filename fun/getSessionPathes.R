@@ -10,6 +10,9 @@
 #'@param csess= current session "01",
 #'@param courseCode current course options are "gi", "rs", "da" you may only use one course per session
 #'@param moc=TRUE creates a folder structure according to the needs of the MOC courses, FALSE creates a simple project structure
+#'@param dataWorkingFolder default c("/scripts/", "/rmds/"),
+#'@param sessionWorkingFolder default ("RData/","temp/","run/","input/","output/"))
+#'
 #'\preformatted{
 #'   If moc=TRUE the following folderstructure is exported. If folders do not exist thesy will be created.
 #'.
@@ -51,27 +54,35 @@
 #'
 #'@return  getSessionPathes< creates if necessary the directories and export the corresponding pathes as global variables\cr
 
-getSessionPathes<- function(filepath_git,sessNo=1,courseCode="gi") {
+getSessionPathes<- function(filepath_git,
+                            filepath_data,
+                            sessNo=1,
+                            courseCode="gi",
+                            sessionWorkingFolder=c("/scripts/", "/rmds/"),
+                            dataWorkingFolder=c("RData/","temp/","run/","input/","output/")) {
   
   # switch backslash to slash and expand path to full path
   filepath_git<-gsub("\\\\", "/", path.expand(filepath_git))  
-  
+  filepath_data<-gsub("\\\\", "/", path.expand(filepath_data))  
   # check  tailing / and if not existing append
-  if (substr(filepath_git,nchar(filepath_git)-1,nchar(filepath_git)) != "/") {
+  if (substr(filepath_git,nchar(filepath_git),nchar(filepath_git)) != "/") {
     filepath_git<-paste0(filepath_git,"/")
   }
+  if (substr(filepath_data,nchar(filepath_data),nchar(filepath_data)) != "/") {
+    filepath_data<-paste0(filepath_data,"/")
+  }
   
-
   # script and function folder for each course session can be adapted 
-  session_working_folder<-c("/scripts/", "/rmds/")
+  sessionWorkingFolder<-sessionWorkingFolder
   # currently implemented data folders can be adapted 
-  data_working_folder<-c("RData/","temp/","run/","input/","output/")
+  dataWorkingFolder<-dataWorkingFolder
                        
   
 
     # static course structure - better keep the below folders
     proj_root_git<-c(path.expand(filepath_git))
-    proj_root_data<-paste0(substr(proj_root_git,1,gregexpr(pattern ='/',proj_root_git)[[1]][as.numeric(lengths(gregexpr(pattern ='/',proj_root_git))[[1]]-2)]),"data/")
+    proj_root_data<-filepath_data
+    #proj_root_data<-paste0(substr(proj_root_git,1,gregexpr(pattern ='/',proj_root_git)[[1]][as.numeric(lengths(gregexpr(pattern ='/',proj_root_git))[[1]]-2)]),"data/")
     
     if (courseCode == "rs") {
     sub_root<-c("remote_sensing/")
@@ -95,8 +106,8 @@ getSessionPathes<- function(filepath_git,sessNo=1,courseCode="gi") {
     
     # create folder and varibales 
     # function folder for all courses
-    name<-paste0("pg_fun")
-    value<-paste0(filepath_git,"/fun/")
+    name<-paste0("fun")
+    value<-paste0(filepath_git,"fun/")
     makGlobalVar(name, value)
     # and the rest
       
@@ -104,9 +115,9 @@ getSessionPathes<- function(filepath_git,sessNo=1,courseCode="gi") {
 #      for (j in 1:length(sub_root)) {
         #for (k in 1:length(session_ID)) {
           for (l in 1:length(session_number)) {
-            for (m in 1:length(session_working_folder)) {
-              name<-paste0("pg_", substr(session_ID,1,2),"_",as.character(gsub("/", "", session_number[l])),"_",as.character(gsub("/", "",session_working_folder[m])))
-              value<- paste0(proj_root_git[i],sub_root,session_ID,session_number[l],session_working_folder[m])
+            for (m in 1:length(sessionWorkingFolder)) {
+              name<-paste0( substr(session_ID,1,2),"_",as.character(gsub("/", "", session_number[l])),"_",as.character(gsub("/", "",sessionWorkingFolder[m])))
+              value<- paste0(proj_root_git[i],sub_root,session_ID,session_number[l],sessionWorkingFolder[m])
                makGlobalVar(name, value)
               }
             }
@@ -118,11 +129,11 @@ getSessionPathes<- function(filepath_git,sessNo=1,courseCode="gi") {
     # data structure NOTE it is outside the proj_root_git folder
     for (i in 1:length(proj_root_data)){
 #      for (j in 1:length(sub_root)) {
-        for (k in 1:length(data_working_folder)) {
-          name<-paste0("pd_",substr(session_ID,1,2),"_",as.character(gsub("/", "",data_working_folder[k])))
-          value<- paste0(proj_root_data[i],sub_root,data_working_folder[k])
+        for (k in 1:length(dataWorkingFolder)) {
+          name<-paste0(substr(session_ID,1,2),"_",as.character(gsub("/", "",dataWorkingFolder[k]))) #add prefix
+          value<- paste0(proj_root_data[i],sub_root,dataWorkingFolder[k])
            makGlobalVar(name, value)
-          if (courseCode==substr(session_ID,1,2) && data_working_folder[k]=="run/"){
+          if (courseCode==substr(session_ID,1,2) && dataWorkingFolder[k]=="run/"){
             path_temp<- value
           }
         }
