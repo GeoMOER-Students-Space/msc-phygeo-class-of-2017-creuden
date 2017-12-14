@@ -50,6 +50,9 @@ inputFile<- "geonode-lidar_dem_01m.tif"
 ### ------------------
 ### ---------
 
+#--> optionally convert laz to las
+laz<-FALSE
+#--> create full rootDir
 rootDir<-paste0(projDir,rootDir)
 #--> make a list of all functions in the corresponding function folder and source these functions
 res<- sapply(list.files(pattern="[.]R$",path=paste0(rootDir,"/fun"),full.names=TRUE),FUN=source)
