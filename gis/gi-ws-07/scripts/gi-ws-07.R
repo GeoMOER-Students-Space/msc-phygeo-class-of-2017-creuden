@@ -1,10 +1,9 @@
-### --- gi-ws-07 example control script 
-### --- MOC - Advanced GIS 
-### --- setup working environment 
-### --- setup basic GI API links
-### --- provides some LiDAR functionality 
-### --- calculate some basic biodiversity indices
-#
+# --- gi-ws-07 example control script 
+# --- MOC - Advanced GIS 
+# --- setup working environment 
+# --- setup basic GI API links
+# --- provides some LiDAR functionality 
+# --- calculate some basic biodiversity indices
 #   Things to do  
 #   - Basics
 #      - please check and realize the source code
@@ -14,17 +13,26 @@
 #      - implement one more diversity index and calculate the 
 #        already implemented vertical distribution ratio (vdr)
 #
-### --- see also: https://github.com/logmoc/msc-phygeo-class-of-2017-creuden
-### ---
-### --- Basic idea is to set up a static working environment starting a an 
-### --- arbitray point in your folder structure called "projDir". Additionally
-### --- you need to provide a so called "rootDir" which should be an subfolder 
-### --- of the "projDir" folder. 
-### --- Within the classes you have to provide the "courseCode" and the 
-### --- "activeSessionFolder"  wich is the number of the current class session
-### --- Finally if you use GRASS you should provide a valid georefrenced File - 
-### --- preferably a geotif of the area you want to work at
-### --- That's it
+#  NOTE  you will find some weird settings in these scripts most
+#        are dealing with platform incompatibility. It may occure
+#        that even generic windows tools like fusion or lastools 
+#        will NOT run under Windows I just tested the emulation 
+#        on Linux platforms
+#        Whenever you run in trouble open an issue
+#        https://github.com/logmoc/msc-phygeo-class-of-2017-creuden/issues
+#        describe the problem with source code and add your sessionInfo() output
+#
+# --- see also: https://github.com/logmoc/msc-phygeo-class-of-2017-creuden
+# ---
+# --- Basic idea is to set up a static working environment starting a an 
+# --- arbitray point in your folder structure called "projDir". Additionally
+# --- you need to provide a so called "rootDir" which should be an subfolder 
+# --- of the "projDir" folder. 
+# --- Within the classes you have to provide the "courseCode" and the 
+# --- "activeSessionFolder"  wich is the number of the current class session
+# --- Finally if you use GRASS you should provide a valid georefrenced File - 
+# --- preferably a geotif of the area you want to work at
+# --- That's it
 ### -------------------------- setup the environment --------------------------
 
 #--> library requirements
@@ -34,11 +42,14 @@ require(rgrass7)
 require(raster)
 require(mapview)
 
-#--> root folder 
-#--> NOTE may be whereever you want but avoid strange letters as dots etc
-rootDir<-"msc-phygeo-class-of-2017-creuden"
-#--> project folder this is e.g. the place of the github repository 
+
+#--> NOTE point to whereever you want but avoid strange letters as dots etc
+#--> the ~ is a substitute for the system variable HOME
+#--> projDir is general project folder  basic folder eg. C:/Dokumente/1_semester_MSCGEO/GIS/
 projDir<-"~/lehre/msc/active/msc-2017/"
+#-->  rootFolder of the github repository 
+rootDir<-"msc-phygeo-class-of-2017-creuden"
+
 #--> current class
 courseCode<-"gi"
 #--> current class session folder
@@ -91,7 +102,17 @@ if (laz){
 ### ------------------
 ### ------------------
 ### ---------------------------- Thematic  Settings ----------------------------
-
+# Before starting it makes sense to focus the goal:
+#   - we want to calculate some diversity indices based on LiDAR data
+#   - we need to identify the indices lets say FHD and VDR
+#       * what kind of information as derived by the data do we need?
+# + we need to strip the terrain altitudes i.e. normalize/reduce the point cloud data 
+#         + FHD all returns and a defined number of horizontally sliced returns
+#         + VDR max and median returns
+#       * what is technically required?
+#         + we need to deal with a bunch of data files in a row  
+#         + we might deal with more indices so it would fine to split preprocessing from calulation
+#
 #--> Create a list containing the las files in the input folder
 lasfiles<-list.files(gi_input, pattern=".las$", full.names=FALSE) 
 
@@ -111,6 +132,9 @@ statList <- list("max", "median")
 gridsize <- 10
 
 ### ---------------------------- here we go ----------------------------
+
+
+
 
 #--> do it the Fusion way
 # NOTE the fusion algorithm is completly coded in the function fu_sliceRas()
