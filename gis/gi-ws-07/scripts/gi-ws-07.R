@@ -193,7 +193,16 @@ if (useGRASS){
     #--> FHD using the fun_fhd function  provided in diversityindeces.R
     fhd_grass<- fun_fhd(sliceStack)
     
+    #--> FHD using the fun_fhd function  provided in diversityindeces.R
+    vdr_grass<- fun_vdr(statStack[[1]],statStack[[2]])
+    
     spplot(fhd_grass, scales = list(draw = TRUE), 
+           xlab = "easting", ylab = "northing", 
+           col.regions = heat.colors(99), 
+           names.attr=c('original', 'times two'))
+    
+        
+    spplot(vdr_grass, scales = list(draw = TRUE), 
            xlab = "easting", ylab = "northing", 
            col.regions = heat.colors(99), 
            names.attr=c('original', 'times two'))
