@@ -47,7 +47,6 @@ lasTool <- function(  tool="lasinfo",
   path_input<- gi_input
   path_output<- gi_output
   
-  gdal <- link2GI::linkgdalUtils()
   
   # some basic checks 
   if (is.null(lasDir)) stop("no directory containing las/laz files provided...\n")
@@ -97,9 +96,9 @@ lasTool <- function(  tool="lasinfo",
   # merge all files
   if (tool == "lasmerge"){
     cat("\nNOTE: You are dealing with a huge UAV generated point cloud data set.\n      so take time and keep relaxed... :-)\n")
-    cat(":: merge and decompress ",noF," point cloud files...\n")
+    
     ret <- system(paste0(lasmerge,
-                         " -i ",lasDir,"/*.",extFN,
+                         " -i ",lasDir,"/*.las",
                          " -olas",
                          " -o ",path_run,"full_point_cloud.las"),
                   intern = TRUE, 
@@ -171,6 +170,28 @@ lasTool <- function(  tool="lasinfo",
                   ignore.stderr = TRUE
     )
   }
+  if (tool == "lasinfo"){  
+    ret <- system(paste0(lasinfo,
+                         " -i ",lasDir,
+                         " -no_check  -stdout"),intern = TRUE)
+    paste0("wine ",fun,"LASTools/lasinfo-cli.exe ")
+    spatial_params<- list() 
+    
+    tmp <- grep(pattern = "min x y z", ret, value = TRUE)
+    tmp <- unlist(strsplit(tmp, ":"))
+    tmp <- unlist(strsplit(stringr::str_trim(tmp[2]), " "))
+    spatial_params[1] <- tmp[1]
+    spatial_params[2] <- tmp[2]
+    tmp <- grep(pattern = "max x y z", ret, value = TRUE)
+    tmp <- unlist(strsplit(tmp, ":"))
+    tmp <- unlist(strsplit(stringr::str_trim(tmp[2]), " "))
+    spatial_params[3] <- tmp[1]
+    spatial_params[4] <- tmp[2]
+    #spatial_params[5] <- grep(pattern = "+proj", ret, value = TRUE)
+    
+    return(unlist(spatial_params))}
+  
+  
 }
 
 getSpatialLASInfo <- function(lasinfo,lasFN){

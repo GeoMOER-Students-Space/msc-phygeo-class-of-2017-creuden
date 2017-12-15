@@ -1,21 +1,25 @@
 
-## dem function
+## creates a dem according to the class 2  and the scan modus a raster file from the lidar data
 dem_grass_lidar <- function(path, 
                             inFN, 
                             outFN,
                             grass_lidar_method,
-                            res){
+                            res,
+                            class=2
+                            ) {
   
-ground_raster <- execGRASS("r.in.lidar",
+  
+  
+  ground_raster <- execGRASS("r.in.lidar",
                              input = paste0(path, inFN),
                              output = outFN,
                              flags = c("e", "n", "v", "overwrite","o"),
-                             resolution = gridsize,
+                             resolution = res,
                              method = grass_lidar_method,
-                             class_filter = 2,
-                             intern = TRUE,
+                             class_filter = class,
+                             intern = FALSE,
                              ignore.stderr = TRUE)
-  return(ground_raster)
+  
 }
 
 
@@ -26,8 +30,7 @@ medmax <- function(input,
                           dem_base,
                           res) {
 
-
-
+  
   medmax <- execGRASS("r.in.lidar",
                              input = input,
                              output = outFN,
@@ -38,7 +41,7 @@ medmax <- function(input,
         
                              intern = FALSE,
                              ignore.stderr = TRUE)
-  return(medmax)
+  
 }
   
 heightClasses <- function(input, 
@@ -47,7 +50,8 @@ heightClasses <- function(input,
                           grass_lidar_method,
                           dem_base,
                           height_class=c(0,100),
-                          res) {
+                          res){
+  
   heightClasses <- execGRASS("r.in.lidar",
                              input = input,
                              output = outFN,
