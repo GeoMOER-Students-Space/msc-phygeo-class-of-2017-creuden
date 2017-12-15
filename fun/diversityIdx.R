@@ -1,7 +1,3 @@
-###TODO
-#https://link.springer.com/article/10.1007/s10980-012-9806-4
-
-
 # foliage height density
 # Originally MacArthur & MacArthur (1961)
 # Implemented after:
@@ -9,8 +5,15 @@
 # http://www.isprs.org/proceedings/XXXVI/8-W2/HASHIMOTO.pdf
 
 fun_fhd <- function(a) {
+  abs(sum(-1 * ((a/a[[nlayers(a)]]) * log(a / (a/a[[nlayers(a)]]))),na.rm = TRUE))
+  #sum(calc(x = a, fun = function(a){-1 * ((a/a[[length(a)]]) * log(a / (a/a[[length(a)]])))}))
+}
+
+#slightly changed for GridMetric output (gives allready pi)
+
+fun_fhd_fu <- function(b) {
   
-  sum(calc(x = a, fun = function(a){-1 * ((a/a[[length(a)]]) * log(a / (a/a[[length(a)]])))}))
+  sum(-1 * ((b[[length(b)]]) * log(b[[length(b)]])),na.rm = TRUE)
 }
 
 # Vertical distribution ratio (VDR)
@@ -20,7 +23,7 @@ fun_fhd <- function(a) {
 # Areas characterized by a more even distribution of biomass throughout the vertical profile will exhibit larger VDRs (closer to 1)
 # Goetz, S. J., D. Steinberg, R. Dubayah, and B. Blair. 2007. Laser remote sensing of canopy habitat heterogeneity as a predictor of bird species richness in an eastern temperate forest, USA. Remote Sensing of Environment 108:254-263. 
 # http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.111.2979&rep=rep1&type=pdf
-fun_vdr <- function(max,med) {
-  (max - med) / max
-}
 
+fun_vdr <- function(max,med) {
+  vdr<- (max - med) / max
+}
