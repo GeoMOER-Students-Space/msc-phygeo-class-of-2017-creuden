@@ -4,26 +4,25 @@
 # --- setup basic GI API links
 # --- provides some LiDAR functionality 
 # --- calculate some basic biodiversity indices
-#   Things to do  
-#   - Basics
-#      - please check and realize the source code
-#      - if everything is comparable why we have so different results 
-#      - find the reason and eleminate it 
-#   - Advanced
-#      - implement one more diversity index and calculate the 
-#        already implemented vertical distribution ratio (vdr)
 #
-#  NOTE  you will find some weird settings in these scripts most
-#        are dealing with platform incompatibility. It may occure
-#        that even generic windows tools like fusion or lastools 
-#        will NOT run under Windows I just tested the emulation 
-#        on Linux platforms
+#   Things to do  
+#      - please check and realize the source code
+#      - check results against FUSION approach
+#      - implement one more diversity index and calculate the 
+#        
+#
+#  NOTE  It may occure that generic windows tools like fusion or lastools 
+#        will NOT run under Windows most reasonable because I just tested 
+#        the wine emulation on Linux platforms...
+#
 #        Whenever you run in trouble open an issue
 #        https://github.com/logmoc/msc-phygeo-class-of-2017-creuden/issues
 #        describe the problem with source code and add your sessionInfo() output
 #
-# --- see also: https://github.com/logmoc/msc-phygeo-class-of-2017-creuden
-# ---
+# --- codebase: https://github.com/logmoc/msc-phygeo-class-of-2017-creuden
+# 
+#
+### -------------------------- setup the environment --------------------------
 # --- Basic idea is to set up a static working environment starting a an 
 # --- arbitray point in your folder structure called "projDir". Additionally
 # --- you need to provide a so called "rootDir" which should be an subfolder 
@@ -33,7 +32,6 @@
 # --- Finally if you use GRASS you should provide a valid georefrenced File - 
 # --- preferably a geotif of the area you want to work at
 # --- That's it
-### -------------------------- setup the environment --------------------------
 
 #--> library requirements
 devtools::install_github("gisma/link2GI", ref = "master", dependencies = TRUE)
