@@ -5,14 +5,19 @@
 # http://www.isprs.org/proceedings/XXXVI/8-W2/HASHIMOTO.pdf
 
 fun_fhd <- function(a) {
-  abs(sum(-1 * ((a/a[[nlayers(a)]]) * log(a / (a/a[[nlayers(a)]]))),na.rm = TRUE))
+  l<-nlayers(a)
+  rr<- abs(sum(-1 * ((a/a[[l]]) * log(a / (a/a[[l]]))),na.rm = TRUE))
+  rr[rr==Inf]<-0
+  
 }
 
 #slightly changed for GridMetric output (gives allready pi)
 
 fun_fhd_fu <- function(b) {
-  
-  sum(-1 * ((b[[length(b)]]) * log(b[[length(b)]])),na.rm = TRUE)
+  a <- subset(b, 1:6)
+  l<-nlayers(a)
+  rr<-sum(-1 * ((a[[l]]) * log(a[[l]])),na.rm = TRUE)
+  rr[rr==Inf]<-0
 }
 
 # Vertical distribution ratio (VDR)
