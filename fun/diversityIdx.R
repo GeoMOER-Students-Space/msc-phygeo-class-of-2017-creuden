@@ -6,7 +6,6 @@
 
 fun_fhd <- function(a) {
   abs(sum(-1 * ((a/a[[nlayers(a)]]) * log(a / (a/a[[nlayers(a)]]))),na.rm = TRUE))
-  #sum(calc(x = a, fun = function(a){-1 * ((a/a[[length(a)]]) * log(a / (a/a[[length(a)]])))}))
 }
 
 #slightly changed for GridMetric output (gives allready pi)
@@ -25,5 +24,5 @@ fun_fhd_fu <- function(b) {
 # http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.111.2979&rep=rep1&type=pdf
 
 fun_vdr <- function(max,med) {
-  vdr<- (max - med) / max
+  vdr <- (max - med) / max
 }

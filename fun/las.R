@@ -113,11 +113,11 @@ lasTool <- function(  tool="lasinfo",
   
   if (tool=="las2las"){
     ### reduce data amount
-    cat("\n:: reducing the point density...\n")
+    cat("\n:: converting laz to las..\n")
     ret <- system(paste0(las2las,
-                         " -i ",lasDir,"/*.laz",
+                         " -i ",lasDir,
 #                         " -odix  ",
-                         " -odir ",path_input,
+                         " -odir ",path_run,
                          " -o","las",
                          " -keep_class ",keep_class
 #                         " -thin_with_grid ",thin_with_grid
