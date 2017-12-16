@@ -41,6 +41,7 @@ require(raster)
 require(mapview)
 
 
+
 #--> NOTE point to whereever you want but avoid strange letters as dots etc
 #--> the ~ is a substitute for the system variable HOME
 #--> projDir is general project folder  basic folder eg. C:/Dokumente/1_semester_MSCGEO/GIS/
@@ -55,7 +56,7 @@ courseCode<-"gi"
 activeSessionFolder<-7
 
 #--> create plots
-plotIt <- TRUE
+plotIt <- FALSE
 
 #--> optionally convert laz to las
 laz<-FALSE

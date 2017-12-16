@@ -73,9 +73,9 @@ densityMetrics<-function(lasFiles, heightClassList, res){
     command<-paste0(command,"densitymetrics.exe")
     command<-paste0(command, " ", "/slices:")
     command<-paste0(command,slices)
-    command<-paste0(command, " ",gi_output,"surf_",i,".dtm" )
+    command<-paste0(command, " ",gi_run,"surf_",i,".dtm" )
     command<-paste0(command," ", res, " ", 0)
-    command<-paste0(command," ", gi_output,i,"SliceProportion_", ".dtm"   )
+    command<-paste0(command," ", gi_run,i,"SliceProportion_", ".dtm"   )
     command<-paste0(command," ", gi_input, i )
     system(command)
     
@@ -117,11 +117,11 @@ GroundSurfaceCreate<-function(lasFiles, res ){
     command<-Fusion
     command<-paste0(command, "catalog.exe")
     command<-paste0(command," ", gi_input, basename(lasFiles[i]) )
-    command<-paste0(command," ", gi_output, i,".html"   )
+    command<-paste0(command," ", gi_run, i,".html"   )
     system(command)
     
     #--> extract extent info 
-    info <- read.csv(paste0(gi_output,i,".csv"))
+    info <- read.csv(paste0(gi_run,i,".csv"))
     #fix extent
     info2<-missingExtents(info)
     #TODO  fix error in las files if (as.numeric(info[[2]][3])) fixLas()
@@ -135,16 +135,16 @@ GroundSurfaceCreate<-function(lasFiles, res ){
       command<-paste0(command, "clipdata.exe")
       command<-paste0(command," ","/class:2 ")
       command<-paste0(command," ", gi_input, basename(lasFiles[i])   )
-      command<-paste0(command," ", gi_output,"ground_",basename(lasFiles[i])   )
+      command<-paste0(command," ", gi_run,"ground_",basename(lasFiles[i])   )
       command<-paste0(command," ", extent)
     system(command)  
     
     #--> Create the required PLANS DTM format 
       command<-Fusion
       command<-paste0(command, "gridsurfacecreate.exe")
-      command<-paste0(command," ", gi_output,"surf_",basename(lasFiles[i]),".dtm")
+      command<-paste0(command," ", gi_run,"surf_",basename(lasFiles[i]),".dtm")
       command<-paste0(command," ", paramList  )
-      command<-paste0(command," ", gi_output,"ground_",basename(lasFiles[i])   )
+      command<-paste0(command," ", gi_run,"ground_",basename(lasFiles[i])   )
     system(command) 
 }}
     
@@ -179,13 +179,13 @@ readAscGridMetrics<-function(lasFiles, heightClasses){
   
   for(i in 1:length(lasFiles)){
     
-    maxHeights<-paste0(gi_output,lasFiles[i],"SliceProportion_","_all_returns_max_height.dtm",".asc")
-    totalReturns<-paste0(gi_output,lasFiles[i],"SliceProportion_"," _all_returns_total_returns.dtm",".asc")
+    maxHeights<-paste0(gi_run,lasFiles[i],"SliceProportion_","_all_returns_max_height.dtm",".asc")
+    totalReturns<-paste0(gi_run,lasFiles[i],"SliceProportion_"," _all_returns_total_returns.dtm",".asc")
     AscGridMetrics[[i]][length(heightClasses[[1]])+1]<-maxHeights
     AscGridMetrics[[i]][length(heightClasses[[1]])+2]<-maxHeights
     
     for (j in 1:length(heightClasses[[1]])){
-      prop<-paste0(gi_output,lasFiles[i],"SliceProportion_","_all_returns_slice_",j, ".dtm",".asc")
+      prop<-paste0(gi_run,lasFiles[i],"SliceProportion_","_all_returns_slice_",j, ".dtm",".asc")
       AscGridMetrics[[i]][j]<-prop}}
   return(AscGridMetrics)}
 
@@ -215,21 +215,21 @@ densityMetrics2asci<-function(lasFiles, heightClasses){
     #put maxHeights
     command<-Fusion
     command<-paste0(command, "dtm2ascii.exe")
-    maxHeights<-paste0(gi_output,lasFiles[i],"SliceProportion_","_all_returns_max_height.dtm")
+    maxHeights<-paste0(gi_run,lasFiles[i],"SliceProportion_","_all_returns_max_height.dtm")
     command<-paste0(command, " ",maxHeights )
-    command<-paste0(command, " ",gi_output, maxHeights, ".asc" )
+    command<-paste0(command, " ",gi_run, maxHeights, ".asc" )
     system(command)
     #and total Returns 
     command<-Fusion
     command<-paste0(command, "dtm2ascii.exe")
-    totalReturns<-paste0(gi_output,lasFiles[i],"SliceProportion_"," _all_returns_total_returns.dtm")
+    totalReturns<-paste0(gi_run,lasFiles[i],"SliceProportion_","_all_returns_total_returns.dtm")
     command<-paste0(command, " ",totalReturns )
     command<-paste0(command, " ",totalReturns, ".asc" )
     system(command)
     
     for (j in 1:length(heightClasses[[1]])){
       #put pi (proportion in the ith layer) 
-      prop<-paste0(gi_output,lasFiles[i],"SliceProportion_","_all_returns_slice_",j, ".dtm")
+      prop<-paste0(gi_run,lasFiles[i],"SliceProportion_","_all_returns_slice_",j, ".dtm")
       #in the slots before
         command<-Fusion
         command<-paste0(command, "dtm2ascii.exe")
@@ -241,7 +241,7 @@ densityMetrics2asci<-function(lasFiles, heightClasses){
 
   
 
-gi_output
+
 
 
 
