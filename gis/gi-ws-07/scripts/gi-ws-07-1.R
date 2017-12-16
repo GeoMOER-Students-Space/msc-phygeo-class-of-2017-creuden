@@ -27,10 +27,9 @@
 # --- arbitray point in your folder structure called "projDir". Additionally
 # --- you need to provide a so called "rootDir" which should be an subfolder 
 # --- of the "projDir" folder. 
-# --- Within the classes you have to provide the "courseCode" and the 
+# --- Within the classes you have to provide the "courseCode" (gi,rs,da) and the 
 # --- "activeSessionFolder"  wich is the number of the current class session
-# --- Finally if you use GRASS you should provide a valid georefrenced File - 
-# --- preferably a geotif of the area you want to work at
+# --- 
 # --- That's it
 
 #--> library requirements
@@ -49,19 +48,24 @@ projDir<-"~/lehre/msc/active/msc-2017/"
 #-->  rootFolder of the github repository 
 rootDir<-"msc-phygeo-class-of-2017-creuden"
 
+
 #--> current class
 courseCode<-"gi"
 #--> current class session folder
 activeSessionFolder<-7
 
+#--> create plots
 plotIt <- TRUE
-
-### ------------------------- end basic pathes and settings -------------------
-### ------------------
-### ---------
 
 #--> optionally convert laz to las
 laz<-FALSE
+
+### ------------------------- end basic pathes and settings -------------------
+### -------- that means usually there is no need to change the next section ---
+### ---------
+
+### ------------------------- setup entvironmentt -------------------
+
 #--> create full rootDir
 rootDir<-paste0(projDir,rootDir)
 #--> make a list of all functions in the corresponding function folder and source these functions
