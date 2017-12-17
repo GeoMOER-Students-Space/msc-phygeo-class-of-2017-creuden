@@ -216,3 +216,13 @@ getSpatialLASInfo <- function(lasinfo,lasFN){
   
   return(unlist(spatial_params))
 }
+
+rescaleLas<- function(lasinfo,lasFN){
+ret <- system(paste0("wine ",fun,"LASTools/las2las-cli.exe ",
+                     " -i ",lasFN,
+                     "-rescale 0.01 0.01 0.01 ", 
+                     "-auto_reoffset " ,
+                     "-o ", lasFN,"_fixed.laz " ), 
+              intern = TRUE, 
+              ignore.stderr = TRUE
+)}

@@ -55,7 +55,7 @@ courseCode<-"gi"
 activeSessionFolder<-7
 
 #--> create plots
-plotIt <- FALSE
+plotIt <- T
 
 #--> optionally convert laz to las
 laz<-FALSE
@@ -191,8 +191,8 @@ for (j in 1:(length(lasfiles))) {
                      ))
   
 
-  
-  # for each lasfile Calculate indices
+  for
+  #  each lasfile Calculate indices
   #--> FHD using the fun_fhd function  provided in diversityindeces.R
   fhd[[j]]<- fun_fhd(zrSlices[[j]])
   
