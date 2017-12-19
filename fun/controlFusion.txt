@@ -5,7 +5,7 @@ if (Sys.info()["sysname"] == "Windows") {
   pi<-gi_input
   pr<-gi_run
   p0<-gi_output
-
+  
   #--> Create a list containing the las files in the input folder
   lasfiles<-list.files(gi_input, pattern=".las$", full.names=FALSE)   
   
@@ -15,6 +15,7 @@ if (Sys.info()["sysname"] == "Windows") {
     Fusion <-"LC_CTYPE=de_DE.utf8 wine /home/creu/.wine/dosdevices/c:/FUSION/"
     #--> workaround because Fusion does not acept the pathes
     #    so we copy the files to the current setwd()
+    setwd(gi_run)
     cat("copy ",lasfiles,gi_run)
     file.copy(paste0(gi_input,lasfiles),getwd())
     gi_input<-""
