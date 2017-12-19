@@ -26,13 +26,9 @@ missingExtents<-function(catalogTable){
     
     for (j in findrows){
       coor<-substr(catalogTable[j,1],nchar(as.character(catalogTable[j,1]))-10, nchar(as.character(catalogTable[j,1])))
-      
       xmin<-paste0(substr(coor, 1,3), "000")
-      
       ymin<-paste0(substr(coor, 4,7), "000")
-      
       catalogTable[j,]$MinX=as.numeric(xmin)
-      
       catalogTable[j,]$MinY=as.numeric(ymin)
     }}
   
@@ -196,85 +192,6 @@ GroundSurfaceCreate<-function(lasFiles, res ){
 
 
 
-
-
-readMetrics<-function(lasFiles, heightClassList, metrics){
-  Metrics<-list()
-  
-  Metrics<-vector("list", length(lasFiles))
-  
-  for(i in 1:length(lasFiles)){
-    
-    maxheightClassList<-paste0(gi_output,lasFiles[i],"densMetrics","_all_returns_max_height.dtm",".asc")
-    totalReturns<-paste0(gi_output,lasFiles[i],"densMetrics"," _all_returns_total_returns.dtm",".asc")
-    
-    Metrics[[i]][length(heightClassList[[1]])+1]<-maxheightClassList
-    Metrics[[i]][length(heightClassList[[1]])+2]<-maxheightClassList
-    
-    
-    
-    for (j in 1:length(heightClassList[[1]])){
-      prop<-paste0(gi_output,lasFiles[i],"densMetrics","_all_returns_slice_",j, ".dtm",".asc")
-      Metrics[[i]][j]<-prop
-      
-      for (k in 1:length(metrics)){
-        median<-paste0(gi_output, lasFiles[i], "_elevationMetrics", metrics[k],".asc" )
-        Metrics[[i]][length(heightClassList[[1]])+3]<-median
-      }}}
-  return(Metrics)}
-
-#'@name densityMetrics2asci
-#'@title list all densityMetricsProducts and convert them into GIS-readable asc
-#'
-#'@description
-#' list all densityMetricsProducts and convert them into GIS-readable asc
-#'
-#'@author Chris Reudenbach,Jannis Gottwald
-#'
-#'
-#'@param lasFiles  default is \code{NULL} list of the las file(s)
-#'@param heightClassList default is \code{list(c(0,2,5,10,30))}  
-#'@examples
-#'\dontrun{
-#' 
-#'densityMetrics2asci(lasFiles = lasFiles, heightClassList = heights)
-#'}
-#'
-#'
-#'
-#'
-densityMetrics2asci<-function(lasFiles, heightClassList){
-  for (i in 1:length(lasFiles)){
-    
-    command<-Fusion
-    command<-paste0(command, "dtm2ascii.exe")
-    
-    #maxHeights
-    maxHeights<-paste0(gi_run,lasFiles[i],"densMetrics_","all_returns_max_height.dtm")
-    command<-paste0(command, " ",maxHeights )
-    command<-paste0(command, " ",gi_output, basename(maxHeights), ".asc" )
-    system(command)
-    
-    command<-Fusion
-    command<-paste0(command, "dtm2ascii.exe")
-    
-    #total returns
-    totalReturns<-paste0(gi_run,lasFiles[i],"densMetrics_","all_returns_total_returns.dtm")
-    command<-paste0(command, " ",totalReturns )
-    command<-paste0(command, " ",gi_output, basename(totalReturns), ".asc" )
-    system(command)
-    
-    #proportion in the ith layer pi
-    for (j in 1:length(unlist(heightClassList))){
-      prop<-paste0(gi_run,lasFiles[i],"densMetrics","_all_returns_slice_",j, ".dtm")
-      command<-Fusion
-      command<-paste0(command, "dtm2ascii.exe")
-      command<-paste0(command, " ",prop )
-      command<-paste0(command, " ",gi_output, basename(prop), ".asc" )
-      system(command)
-    }}}
-
-
 #'@name gridMetrics
 #'@title calculate elevation and intensity based metrics an write out selected metrics to raster (.asc)
 #'
@@ -304,7 +221,15 @@ densityMetrics2asci<-function(lasFiles, heightClassList){
 #'
 #'
 #'
-GridMetrics<-function(lasFiles, res, heightClassList, metrics,heightbreak,buffer, cellbuffer, strata, instrata ){
+GridMetrics<-function(lasFiles, 
+                      res, 
+                      heightClassList, 
+                      metrics,
+                      heightbreak,
+                      buffer, 
+                      cellbuffer, 
+                      strata, 
+                      instrata ){
   metricsList<-list()
   metricsList<-vector("list", length(lasFiles))
   metr<-list()
@@ -323,32 +248,9 @@ for (i in 1:length(lasFiles)){
   #--> define extent for further calculation
   extent<-paste(as.numeric(info$MinX),as.numeric(info$MinY),as.numeric(info$MaxX),as.numeric(info$MaxY))
   ex<-extent(as.numeric(info$MinX),as.numeric(info$MinY),as.numeric(info$MaxX),as.numeric(info$MaxY))
-  
-  
+
   #  heightClassList to string if strata or instrata is set
   slices<-paste(unlist(heightClassList), collapse = ",")
-  
-  #calculate gridmetrics
-  command<-Fusion
-  command<-paste0(command, "gridmetrics.exe ")
-  #command<-paste0(command,"/gridxy:", extent )
-  
-  # set switches- switches will not be defined if argument is missing in function call
-  ifelse(!missing(buffer), command<-paste0(command, " /buffer:", 
-                                           buffer), command<-command)
-  ifelse(!missing(cellbuffer), command<-paste0(" /cellbuffer:", 
-                                               cellbuffer), command<-command)
-  ifelse(!missing(strata), command<-paste0(" /strata:", 
-                                           slices), command<-command)
-  ifelse(!missing(instrata), command<-paste0(" /instrata:", 
-                                             slices), command<-command)
-  # set basic parameters
-  command<-paste0(command," ", gi_run,"surf_",lasFiles[i],".dtm")
-  command<-paste0(command, " ", heightbreak)
-  command<-paste0(command, " ", res)
-  command<-paste0(command," ", gi_run,lasFiles[i], "_GridMetrics.csv"   )
-  command<-paste0(command," ", gi_input, lasFiles[i])
-  system(command) 
   
   #create ascii raster from gridmetrics, for column indexing look up indexes given 
   #in Fusion Manual p.78/79
@@ -412,9 +314,6 @@ for (i in 1:length(lasFiles)){
       rold<-r
           }
     metr[[i]]<-r
-    # raster::crs(metr[[i]])<- proj4
-    # 
-    
     }
   return(metr)
 }

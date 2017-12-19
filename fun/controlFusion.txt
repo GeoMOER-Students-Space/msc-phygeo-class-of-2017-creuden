@@ -7,7 +7,7 @@ if (Sys.info()["sysname"] == "Windows") {
   p0<-gi_output
 
   #--> Create a list containing the las files in the input folder
-  lasfiles<-list.files(gi_input, pattern=".las$", full.names=TRUE)   
+  lasfiles<-list.files(gi_input, pattern=".las$", full.names=FALSE)   
   
 } else if (Sys.info()["sysname"] == "Linux") {
   # check if wine is installed

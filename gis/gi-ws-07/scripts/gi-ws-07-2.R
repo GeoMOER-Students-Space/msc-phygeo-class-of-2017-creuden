@@ -106,7 +106,7 @@ proj4 = "+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_def
 #      you may change manually the paramList, only the target gridsize is automatically implemented
 
 # call fusion based slicing funktion
-density<-fu_sliceRas(lasFiles = lasfiles,
+zrSlices<-fu_sliceRas(lasFiles = lasfiles,
                      zrange = zrange, 
                      zrnames = zrnames,  
                      paramList = c("10 M M 1 32 0 0 "),
@@ -114,7 +114,7 @@ density<-fu_sliceRas(lasFiles = lasfiles,
 
 
 # call fusion based metrics for Median (31) and Max(7) according to Fusion Manual p.78/79
-gridMet<- GridMetrics(lasFiles = lasfiles, 
+statLayer<- GridMetrics(lasFiles = lasfiles, 
                       res = gridsize, 
                       heightClassList = unlist(zrList), 
                       metrics = c(7,31), 
@@ -123,11 +123,11 @@ gridMet<- GridMetrics(lasFiles = lasfiles,
 
 fhd<-list()
 vdr<-list()
-for (i in 1:length(gridMet)){
+for (i in 1:length(zrSlices)){
   cat(i)
   #--> FHD using the fun_fhd function  provided in diversityindeces.R
-  fhd[[i]]<- fun_fhd(unlist(density[[i]]))
-  g<-gridMet[[i]] 
+  fhd[[i]]<- fun_fhd(unlist(zrSlices[[i]]))
+  g<-statLayer[[i]] 
   g[is.na(g[])] <- 0 
   g[is.infinite(g[])] <- 0 
   #--> FHD using the fun_fhd function  provided in diversityindeces.R
@@ -153,7 +153,7 @@ zrn<-paste( unlist(zrList), collapse='_')
 lsf<-paste( unlist(tools::file_path_sans_ext(lasfiles)), collapse='_')
 # save the results
 save(zrSlices,file = paste0(gi_output,"fu_",zrn,lsf,".RData"))
-#save(statLayer,file = paste0(gi_output,"fu_",zrn,mn,".RData"))
+save(statLayer,file = paste0(gi_output,"fu_",zrn,mn,".RData"))
 # save the results
 save(fhd,file = paste0(gi_output,"fu_",zrn,lsf,"_fhd",".RData"))
 save(vdr,file = paste0(gi_output,zrn,mn,"_vdr",".RData"))  
