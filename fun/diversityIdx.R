@@ -5,7 +5,7 @@
 # http://www.isprs.org/proceedings/XXXVI/8-W2/HASHIMOTO.pdf
 
 fun_fhd <- function(a) {
-  l <- nlayers(a)
+  l <- raster::nlayers(a)
   r <- -1 * ((a/a[[l]]) * log(a / (a/a[[l]])))
   abs(sum(r[[1:(l-1)]]))
 }
@@ -28,5 +28,5 @@ fun_fhd_fu <- function(b) {
 # http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.111.2979&rep=rep1&type=pdf
 
 fun_vdr <- function(max,med) {
-  vdr <- (max - med) / max
+  vdr <- (max[[1]] - med[[1]]) / max[[1]]
 }

@@ -101,7 +101,20 @@ r_in_lidar<- function(input=NULL,
               echoCmd=TRUE,
               intern = FALSE,
               ignore.stderr = FALSE)
-  } else {
+  } else if (!is.null(return_filter)){
+    execGRASS("r.in.lidar",
+              input = input,
+              output = output,
+              flags = flags,
+              resolution = resolution,
+              method = method,
+              return_filter =return_filter,
+              echoCmd=TRUE,
+              intern = FALSE,
+              ignore.stderr = FALSE)
+    
+  }
+  else {
   
   # create a list of arguments 
   arguments    <- list(input, output, file, method, type, base_raster,zrange, zscale, intensity_range, intensity_scale, 

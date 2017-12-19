@@ -40,7 +40,6 @@ require(rgrass7)
 require(raster)
 require(mapview)
 
-
 #--> NOTE point to whereever you want but avoid strange letters as dots etc
 #--> the ~ is a substitute for the system variable HOME
 #--> projDir is general project folder  basic folder eg. C:/Dokumente/1_semester_MSCGEO/GIS/
@@ -136,8 +135,8 @@ proj4="+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
 #      calls and generic R code
 #      
 #--> basic calculation of DEM from las data set 
-# NOTE: standard aproach would be to use the class2 values unfortunately there will be A LOT
-#       of NA values. second best simple methodis to use the "min" function
+# standard approach would be to use the class2 values and then interppolate them to a DEM 
+# second best simple methods is to use the "last return" filter
 zrSlices<-list()
 statLayer<-list()
 fhd<-list()
@@ -151,7 +150,8 @@ for (j in 1:(length(lasfiles))) {
              output = paste0(j, "_dem"),
              method = "min",
              resolution = gridsize,
-             class_filter = 2)
+             class_filter = 2,
+             flags = c("e","n","overwrite","o","v"))
 
   # for each las file slice it to according to zrList
   for ( i in 1:(length(zrnames))) {
@@ -162,7 +162,8 @@ for (j in 1:(length(lasfiles))) {
                method = "n",
                base_raster = paste0(j, "_dem"),
                zrange = c(zrange[[i]][1],zrange[[i]][2]),
-               resolution=gridsize
+               resolution=gridsize,
+               flags = c("e","n","overwrite","o","v")
     )
   }
   
@@ -172,7 +173,8 @@ for (j in 1:(length(lasfiles))) {
                output = paste0(meth,"_veg"),
                method = meth,
                base_raster = paste0(j, "_dem"),
-               resolution = gridsize
+               resolution = gridsize,
+               flags = c("e","n","overwrite","o","v")
     )}
 
   # for each las file import data to R
@@ -191,7 +193,7 @@ for (j in 1:(length(lasfiles))) {
                      ))
   
 
-  for
+  
   #  each lasfile Calculate indices
   #--> FHD using the fun_fhd function  provided in diversityindeces.R
   fhd[[j]]<- fun_fhd(zrSlices[[j]])

@@ -40,8 +40,6 @@ require(gdalUtils)
 require(raster)
 require(mapview)
 
-
-
 #--> NOTE point to whereever you want but avoid strange letters as dots etc
 #--> the ~ is a substitute for the system variable HOME
 #--> projDir is general project folder  basic folder eg. C:/Dokumente/1_semester_MSCGEO/GIS/
@@ -58,30 +56,15 @@ activeSessionFolder<-7
 #--> create plots
 plotIt <- FALSE
 
-#--> optionally convert laz to las
-laz<-FALSE
-
-### ------------------------- end basic pathes and settings -------------------
-### -------- that means usually there is no need to change the next section ---
-### ---------
-
-### ------------------------- setup entvironmentt -------------------
-
 #--> create full rootDir
 rootDir<-paste0(projDir,rootDir)
 #--> make a list of all functions in the corresponding function folder and source these functions
 res<- sapply(list.files(pattern="[.]R$",path=paste0(rootDir,"/fun"),full.names=TRUE),FUN=source)
 
 
-#--> set working directory (just if you missed using golbal path variables as a backup)
-setwd(gi_run)
-if (laz){
-  lazfiles<-list.files(gi_input, pattern=".laz$", full.names=TRUE,recursive = TRUE) 
-  lasTool(  tool="las2las",dirname(lazfiles)[1])
-}
-
 ### ------------------------- end environment setup --------------------------
 ### ------------------
+
 ### ------------------
 ### ---------------------------- Thematic  Settings ----------------------------
 # Before starting it makes sense to focus the goal:
@@ -102,7 +85,7 @@ lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE)
 source(paste0(fun,"controlFusion.txt"))
 
 #--> list of height pairs as used for slicing the las data
-zrList <- list(c(0,5,10,15,20,50))
+zrList <- list(c(0.5,5,10,15,20,50))
 zrange<- makenames(zrList)[[2]]
 zrnames<- makenames(zrList)[[1]]
 
@@ -114,67 +97,65 @@ proj4 = "+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_def
 
 ### ---------------------------- here we go ----------------------------
 
-# NOTE the fusion algorithm is completly coded in the functions GroundSurfaceCreate,densityMetrics,
-#densityMetrics2asci,readAscGridMetrics
-#      it returns a merged raster FHD file   
-#      The Fusion stuff is only tested under Windows
+
+
+#--> do it the Fusion way
+# NOTE the fusion algorithm is completly coded in the function fu_sliceRas(),GroundSurfaceCreate,densityMetrics,
+#densityMetrics2asci,readAscGridMetrics. They are all in the fusionTools script.
+#      they return path-lists to raster files with the necessary data for FHD index calculation  
 #      you may change manually the paramList, only the target gridsize is automatically implemented
-#      since one file ( U4775632.las) is corrupt code is accomodated to this problem and contains lines 
-#      that need to be excluded if used for working data
 
-  
-  # call fusion based ground surface function
- GroundSurfaceCreate(lasFiles = lasfiles,res =gridsize )
- 
- # call fusion based densityMetrics function to calculate pi
- densityMetrics(lasFiles = lasfiles,heightClassList = zrList,res = gridsize)
- 
- # 
- 
- # call fusion based function to convert PLANS dtm to ascii
- densityMetrics2asci(lasFiles = lasfiles, heightClasses = zrList)
- 
- # List gridMetrics products in .asc format
- GridList<-readAscGridMetrics(lasFiles = lasfiles, heightClasses = zrList)
+# call fusion based slicing funktion
+density<-fu_sliceRas(lasFiles = lasfiles,
+                     zrange = zrange, 
+                     zrnames = zrnames,  
+                     paramList = c("10 M M 1 32 0 0 "),
+                     res = gridsize)
 
-  zrSlices<-list()
-  fhd<-list()
-  for (i in 1:length(GridList)){
-    cat(i)
-    zrSlices[[i]] <- stack(lapply(GridList[[i]] , function(y){raster::raster(y)}))
-    # for each lasfile Calculate indices
-    #--> FHD using the fun_fhd function  provided in diversityindeces.R
-    fhd[[i]]<- fun_fhd_fu(zrSlices[[i]])
-    }
- 
-  # if plot is true plot them
+
+# call fusion based metrics for Median (31) and Max(7) according to Fusion Manual p.78/79
+gridMet<- GridMetrics(lasFiles = lasfiles, 
+                      res = gridsize, 
+                      heightClassList = unlist(zrList), 
+                      metrics = c(7,31), 
+                      heightbreak=0.2 )
+
+
+fhd<-list()
+vdr<-list()
+for (i in 1:length(gridMet)){
+  cat(i)
+  #--> FHD using the fun_fhd function  provided in diversityindeces.R
+  fhd[[i]]<- fun_fhd(unlist(density[[i]]))
+  g<-gridMet[[i]] 
+  g[is.na(g[])] <- 0 
+  g[is.infinite(g[])] <- 0 
+  #--> FHD using the fun_fhd function  provided in diversityindeces.R
+  vdr[[i]]<-fun_vdr(g[[1]],g[[2]])
   if (plotIt){
-    plot(zrSlices[[j]])
-    #plot(statLayer[[j]])
-    plot(fhd[[j]],  col=rev(heat.colors(10)),main="FHD Index")
-    #plot(vdr[[j]],  col=rev(heat.colors(10)),main="VDR Index")
+    plot(fhd[[i]],  col=rev(heat.colors(10)),main="FHD Index")
+    plot(vdr[[i]],  col=rev(heat.colors(10)),main="VDR Index")
     # mapview::mapview(fhd[[j]],
     #                  col.regions = rev(heat.colors(10)), 
     #                  legend = TRUE,
     #                  alpha.regions = 0.3,
     #                  layer.name="FHD Index") 
-    # mapview::mapview(vdr[[j]],
-    #                  col.regions = rev(heat.colors(10)), 
-    #                  legend = TRUE,
-    #                  alpha.regions = 0.3,
-    #                  layer.name="VDR Index") 
+    
   }
   
   
-  # create names according to inputdata and methods/ranges
-  #mn<-paste( unlist(statList), collapse='_')
-  zrn<-paste( unlist(zrList), collapse='_')
-  lsf<-paste( unlist(tools::file_path_sans_ext(lasfiles)), collapse='_')
-  # save the results
-  save(zrSlices,file = paste0(gi_output,"fu_",zrn,lsf,".RData"))
-  #save(statLayer,file = paste0(gi_output,"fu_",zrn,mn,".RData"))
-  # save the results
-  save(fhd,file = paste0(gi_output,"fu_",zrn,lsf,"_fhd",".RData"))
-  #save(vdr,file = paste0(gi_output,zrn,mn,"_vdr",".RData"))  
+}
 
-    
+
+# create names according to inputdata and methods/ranges
+#mn<-paste( unlist(statList), collapse='_')
+zrn<-paste( unlist(zrList), collapse='_')
+lsf<-paste( unlist(tools::file_path_sans_ext(lasfiles)), collapse='_')
+# save the results
+save(zrSlices,file = paste0(gi_output,"fu_",zrn,lsf,".RData"))
+#save(statLayer,file = paste0(gi_output,"fu_",zrn,mn,".RData"))
+# save the results
+save(fhd,file = paste0(gi_output,"fu_",zrn,lsf,"_fhd",".RData"))
+save(vdr,file = paste0(gi_output,zrn,mn,"_vdr",".RData"))  
+
+
