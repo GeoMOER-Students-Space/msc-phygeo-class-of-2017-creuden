@@ -354,4 +354,5 @@ getSessionPathes(filepath_git = rootDir,
 # check GDAL binaries and start gdalUtils
 gdal<- link2GI::linkgdalUtils()
 
-
+#--> set working directory (just if you missed using golbal path variables as a backup)
+setwd(gi_run)

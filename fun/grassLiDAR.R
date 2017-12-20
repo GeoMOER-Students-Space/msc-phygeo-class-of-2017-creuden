@@ -113,35 +113,85 @@ r_in_lidar<- function(input=NULL,
               intern = FALSE,
               ignore.stderr = FALSE)
     
+  } else if (!is.null(class_filter)) {
+    
+
+    # (step 0) during r.in.lidar check if an error occure
+    m<-try(execGRASS("r.in.lidar",
+                     input = input,
+                     output = output,
+                     flags = flags,
+                     resolution = resolution,
+                     method = method,
+                     class_filter =class_filter,
+                     echoCmd=FALSE,
+                     intern = TRUE,
+                     ignore.stderr = FALSE))
+    
+    if (class(m)=="try-error") {
+      cat("\nno correct las extent - try to correct...\n")
+      cat("\nwork around for broken extent headers")
+      cat("\nif GRASS can not allocate a magical hugfe raster the following may help:")
+      cat("\n1) export las file to ASCII xyz -> gettting the real minx maxx miny maxy values by parsing")
+      cat("\n2) get the the extent from lasinfo tool")
+      cat("\n3) reset the GRASS region to this extent and resolution")
+      cat("\n4) use r.in.xyz to import the DEM data")
+      cat("\n5) in all other slicing steps this raster is used as reference\n")
+      
+      cat("\nstep 1) export to ASCII")
+      lasTool(tool = "las2txt", lasDir = input)
+      cat("\nstep 2) get extent of the original las file")
+      ext<-lasTool(lasDir = paste0(gi_input, lasfiles[j]))
+      cat("\nstep 3) reset the region")
+      rgrass7::execGRASS('g.region',
+                         flags = c('quiet','d'),
+                         n = ext[4],
+                         s = ext[2],
+                         e = ext[3],
+                         w = ext[1],
+                         res = as.character(resolution))
+      cat("\nstep 4) import raster from xyz ASCII\n")
+      m<-try(rgrass7::execGRASS("r.in.xyz",
+                                input = paste0(tools::file_path_sans_ext(input),".txt"),
+                                output = output,
+                                flags = c("i","overwrite"),
+                                method = method,
+                                separator="comma",
+                                echoCmd=FALSE,
+                                intern = TRUE,
+                                ignore.stderr = TRUE))
+    }     
   }
-  else {
   
-  # create a list of arguments 
-  arguments    <- list(input, output, file, method, type, base_raster,zrange, zscale, intensity_range, intensity_scale, 
-                    percent, pth, trim, resolution, return_filter, class_filter)
-  # create a list of corresponding keys
-  argumentsKey <- list("input", "output", "file", "method", "type", "base_raster",
-                    "zrange", "zscale", "intensity_range", "intensity_scale", 
-                    "percent", "pth", "trim", "resolution", "return_filter", "class_filter")
-  charargs<-list( "input" , "output", "method" , "base_raster" ,"file")
-  # paste together the r.lidar xommand 
-  command<-"'r.in.lidar' ,"
-  # for all not NULL arguments do
-  for (i in 1:length(arguments)) {
-    if (!is.null(arguments[[i]])) {
-      # for some arguments wr need quotation
-      if (argumentsKey[[i]] %in% charargs)
-      command<-paste0(command,argumentsKey[[i]],"=",shQuote(arguments[[i]]),",")
-      else 
-        command<-paste0(command,argumentsKey[[i]],"=",arguments[[i]],",")
+  
+  else {
+    
+    # create a list of arguments 
+    arguments    <- list(input, output, file, method, type, base_raster,zrange, zscale, intensity_range, intensity_scale, 
+                         percent, pth, trim, resolution, return_filter, class_filter)
+    # create a list of corresponding keys
+    argumentsKey <- list("input", "output", "file", "method", "type", "base_raster",
+                         "zrange", "zscale", "intensity_range", "intensity_scale", 
+                         "percent", "pth", "trim", "resolution", "return_filter", "class_filter")
+    charargs<-list( "input" , "output", "method" , "base_raster" ,"file")
+    # paste together the r.lidar xommand 
+    command<-"'r.in.lidar' ,"
+    # for all not NULL arguments do
+    for (i in 1:length(arguments)) {
+      if (!is.null(arguments[[i]])) {
+        # for some arguments wr need quotation
+        if (argumentsKey[[i]] %in% charargs)
+          command<-paste0(command,argumentsKey[[i]],"=",shQuote(arguments[[i]]),",")
+        else 
+          command<-paste0(command,argumentsKey[[i]],"=",arguments[[i]],",")
       }
-  }
-  # now paste the flags
-  command<-paste0(command,"flags=c(",paste(shQuote(flags),collapse = ","),")")
-  # change the quotation to ""
-  command<-gsub(x = command,pattern = "'",replacement = '"')
-  # big trick evaluate this parsed text as an command
-  eval(parse(text=paste0("execGRASS(",noquote(command),",intern = FALSE,ignore.stderr = TRUE)")))
+    }
+    # now paste the flags
+    command<-paste0(command,"flags=c(",paste(shQuote(flags),collapse = ","),")")
+    # change the quotation to ""
+    command<-gsub(x = command,pattern = "'",replacement = '"')
+    # big trick evaluate this parsed text as an command
+    eval(parse(text=paste0("execGRASS(",noquote(command),",intern = FALSE,ignore.stderr = FALSE)")))
   }
 }
 
@@ -150,13 +200,28 @@ makenames<-function(zr ) {
   class<-list()
   zrange<-list()
   for ( i in 1:(length(zr[[1]]))) {
-  if (i == length(zr[[1]])){
-    class[[i]]<-c(paste0('class',zr[[1]][1],zr[[1]][length(zr[[1]])]))
-    zrange[[i]]<-c(zr[[1]][1], zr[[1]][length(zr[[1]])])  
-  } else {
-    class[[i]]<-c(paste0('class',zr[[1]][i],zr[[1]][i+1]))
-    zrange[[i]]<-c(zr[[1]][i],zr[[1]][i+1])
-  }
+    if (i == length(zr[[1]])){
+      class[[i]]<-c(paste0('class',zr[[1]][1],zr[[1]][length(zr[[1]])]))
+      zrange[[i]]<-c(zr[[1]][1], zr[[1]][length(zr[[1]])])  
+    } else {
+      class[[i]]<-c(paste0('class',zr[[1]][i],zr[[1]][i+1]))
+      zrange[[i]]<-c(zr[[1]][i],zr[[1]][i+1])
+    }
   }
   return(list(unlist(class),zrange))
-  }
+}
+
+
+# r_in_lidar<- function(input=NULL,
+#                       flags = c("s","i","overwrite")) {
+# execGRASS("r.in.lidar",
+#           input = input,
+#           output = output,
+#           flags = flags,
+#           resolution = resolution,
+#           method = method,
+#           return_filter =return_filter,
+#           echoCmd=TRUE,
+#           intern = FALSE,
+#           ignore.stderr = FALSE)
+# r.in.xyz -s -i --overwrite --verbose input=/home/creu/lehre/msc/active/msc-2017/data/gis/input/U4775632.txt output=test separator=comma value_column=3

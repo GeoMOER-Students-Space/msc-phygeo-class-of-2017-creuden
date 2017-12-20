@@ -1,3 +1,9 @@
+### workaround construct if you use FUSION Tools on Linux platforms
+# the extension txt si used to avoid autimatic  sourcing
+# it basically set up the wine string and copy all data to the runtime directory 
+# because Fusion under wine is not acpcepting the pathes
+# you need to rerun getSessionPathes() to establish the original pathes again
+
 #### fusion settings
 #---> add the location for the Fusion binary folder
 if (Sys.info()["sysname"] == "Windows") {
@@ -16,7 +22,7 @@ if (Sys.info()["sysname"] == "Windows") {
     #--> workaround because Fusion does not acept the pathes
     #    so we copy the files to the current setwd()
     setwd(gi_run)
-    cat("copy ",lasfiles,gi_run)
+    cat("\ncopy ",lasfiles,gi_run,"\n")
     file.copy(paste0(gi_input,lasfiles),getwd())
     gi_input<-""
     gi_run <- ""
