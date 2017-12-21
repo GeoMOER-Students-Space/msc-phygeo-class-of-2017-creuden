@@ -79,6 +79,9 @@ if (correctLas){
   lasfiles<-list.files(paste0(gi_input),pattern="_lapcor.las$", full.names=FALSE) 
 }
 
+# for corrected las files classFilter has to be 13 
+# if running uncorrected lasfiles set it to 2
+classFilter<-13
 
 #--> list of height pairs as used for slicing the las data
 zrList <- list(c(0,5,10,15,20,50))
@@ -125,7 +128,6 @@ for (j in 1:(length(lasfiles))) {
 
   # for each height break do
   for ( i in 1:(length(zrnames))) {
-    
 
     # slice las file according to height breaks and reduce the altitude by subtracting the base raster
     # NOTE the v flag allows only for valid points
@@ -134,7 +136,7 @@ for (j in 1:(length(lasfiles))) {
                method = "n",
                base_raster = paste0("dem_",j),
                zrange = c(zrange[[i]][1],zrange[[i]][2]),
-               class_filter = 13,
+               class_filter = classFilter,
                resolution=gridsize,
                flags = c("d","overwrite","o","v")
     )
