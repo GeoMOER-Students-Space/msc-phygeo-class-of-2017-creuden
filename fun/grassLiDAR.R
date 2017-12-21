@@ -136,9 +136,9 @@ r_in_lidar<- function(input=NULL,
       cat("\n2) get the the extent from lasinfo tool")
       cat("\n3) reset the GRASS region to this extent and resolution")
       cat("\n4) use r.in.xyz to import the DEM data")
-      cat("\n5) in all other slicing steps this raster is used as reference\n")
+      cat("\n5) resulting DEM raster is used further on as reference\n")
       
-      cat("\nstep 1) export to ASCII")
+      cat("\nstep 1) ")
       lasTool(tool = "las2txt", lasDir = input)
       cat("\nstep 2) get extent of the original las file")
       ext<-lasTool(lasDir = paste0(gi_input, lasfiles[j]))
@@ -211,17 +211,36 @@ makenames<-function(zr ) {
   return(list(unlist(class),zrange))
 }
 
+#' converts GRASS raster to geotiff
+#' @description converts GRASS raster to geotiff
+#' @param runDir path of working directory
+#' @param layer name GRASS raster
+#' @param returnRaster return GRASS raster as an R raster object default = FALSE
 
-# r_in_lidar<- function(input=NULL,
-#                       flags = c("s","i","overwrite")) {
-# execGRASS("r.in.lidar",
-#           input = input,
-#           output = output,
-#           flags = flags,
-#           resolution = resolution,
-#           method = method,
-#           return_filter =return_filter,
-#           echoCmd=TRUE,
-#           intern = FALSE,
-#           ignore.stderr = FALSE)
-# r.in.xyz -s -i --overwrite --verbose input=/home/creu/lehre/msc/active/msc-2017/data/gis/input/U4775632.txt output=test separator=comma value_column=3
+#' @export
+#' 
+h_grass2tif <- function(runDir = NULL, layer = NULL, returnRaster = FALSE) {
+  
+  rgrass7::execGRASS("r.out.gdal",
+                     flags     = c("c","overwrite","quiet"),
+                     createopt = "TFW=YES,COMPRESS=LZW",
+                     input     = layer,
+                     output    = paste0(runDir,"/",layer,".tif")
+  )
+  if (returnRaster) return(raster::raster(paste0(runDir,"/",layer,".tif")))
+}
+
+
+
+# fill holes
+fillDEM<- function (folder,layer){
+  cat(":: fill data gaps using gdal_fillnodata... \n")
+  # export data to tif 
+  h_grass2tif(folder, layer)
+  # fill data holes
+  ret <- system(paste0("gdal_fillnodata.py ",
+                       folder,"/",layer,".tif ",
+                       folder,"/",layer,".tif "),intern = TRUE)
+  # write filled data back to GRASS
+  execGRASS('r.in.gdal',  flags=c('o',"overwrite"), input=paste0(folder,"/",layer,".tif"),  output=layer, band=1)
+}

@@ -98,17 +98,18 @@ for (j in 1:(length(lasfiles))) {
   ext<-lasTool(lasDir = paste0(gi_input, lasfiles[j]))
   result<-link2GI::linkGRASS7(spatial_params = c(ext[2],ext[1],ext[4],ext[3],proj4),resolution = gridsize)
 
-  #ext<-lasTool(tool = "las2txt",lasDir = paste0(gi_input, lasfiles[3]))
   # create straightforward dem 
-  # TODO interpolation
   r_in_lidar(input = paste0(gi_input,lasfiles[j]), 
-             output = paste0(j, "_dem"),
+             output = paste0("dem_",j),
              method = "min",
              resolution = gridsize,
              class_filter = 2,
              flags = c("e","n","overwrite","o","v"))
 
-# for each height break do
+  # fill data gaps 
+  fillDEM(gi_input,paste0("dem_",j))
+
+  # for each height break do
   for ( i in 1:(length(zrnames))) {
     
 
@@ -117,7 +118,7 @@ for (j in 1:(length(lasfiles))) {
     r_in_lidar(input = paste0(gi_input,lasfiles[j]), 
                output = zrnames[i],
                method = "n",
-               base_raster = paste0(j, "_dem"),
+               base_raster = paste0("dem_",j),
                zrange = c(zrange[[i]][1],zrange[[i]][2]),
                resolution=gridsize,
                flags = c("d","overwrite","o","v")
@@ -129,7 +130,7 @@ for (j in 1:(length(lasfiles))) {
     r_in_lidar(input = paste0(gi_input,lasfiles[j]), 
                output = paste0(meth,"_veg"),
                method = meth,
-               base_raster = paste0(j, "_dem"),
+               base_raster = paste0("dem_",j),
                resolution = gridsize,
                flags = c("d","overwrite","o","v")
     )}
@@ -178,12 +179,16 @@ for (j in 1:(length(lasfiles))) {
   zrn<-paste( unlist(zrList), collapse='_')
   lsf<-paste( unlist(tools::file_path_sans_ext(lasfiles)), collapse='_')
   # save the results
-  cat("save results to: " ,zrn,"\n",mn)
   save(zrLayer,file = paste0(gi_output,zrn,lsf,".RData"))
   save(statLayer,file = paste0(gi_output,zrn,mn,".RData"))
   # save the results
   save(fhd,file = paste0(gi_output,zrn,lsf,"_fhd",".RData"))
   save(vdr,file = paste0(gi_output,zrn,mn,"_vdr",".RData"))
-
+  
+  cat("save results to: " ,paste0(gi_output,zrn,lsf,".RData\n"))
+  cat("save results to: " ,paste0(gi_output,zrn,mn,".RData\n"))
+  cat("save results to: " ,paste0(gi_output,zrn,lsf,"_fhd.RData\n"))
+  cat("save results to: " ,paste0(gi_output,zrn,mn,"_vdr.RData\n"))
+  cat("\nfinished")
 
 

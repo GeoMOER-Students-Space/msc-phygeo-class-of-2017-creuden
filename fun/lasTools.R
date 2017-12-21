@@ -161,7 +161,7 @@ lasTool <- function(  tool="lasinfo",
     )
   }
   if (tool == "las2txt"){ 
-     cat("\n export las to xyz - this may take a while...")
+     cat(" export las to xyz - this may take a while...\n")
     ret <- system(paste0(las2txt,
                          " -i ",lasDir,
                          " -parse xyzrRGB",
