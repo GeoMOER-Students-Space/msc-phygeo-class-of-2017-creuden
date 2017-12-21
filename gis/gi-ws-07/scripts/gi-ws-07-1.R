@@ -82,6 +82,7 @@ if (correctLas){
     # getting the new las file list
     
   }
+  correctLas = FALSE
   lasfiles<-list.files(paste0(gi_input),pattern="_lapcor.las$", full.names=FALSE) 
 } else {
   #lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 

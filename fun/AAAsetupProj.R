@@ -351,9 +351,25 @@ getSessionPathes(filepath_git = rootDir,
 #                             gisdbase = paste0(projDir,"data/gis/GRASS7"), 
 #                             location = "OFM")
 
+
+if (Sys.info()["sysname"] == "Windows") {
+  Fusion<-"C:/FUSION/"
+  searchPathGrass = "c:\\OSGeo4W64"
+ 
+} else if (Sys.info()["sysname"] == "Linux") {
+  # check if wine is installed
+  if (substr(system2("wine",args = "--help",stderr = TRUE, stdout = TRUE,)[1],1 ,6 ) == "Usage:") {
+    Fusion <-"LC_CTYPE=de_DE.utf8 wine /home/creu/.wine/dosdevices/c:/FUSION/"
+    searchPathGrass = "/usr/bin"
+  }
+  else
+    stop("for running a windows executable you need to install wine\n")
+} else {
+  stop("no idea about Mac...\n")
+}
+
 # check GDAL binaries and start gdalUtils
 gdal<- link2GI::linkgdalUtils()
 
 #--> set working directory (just if you missed using golbal path variables as a backup)
-setwd("E:/R_proj/data/gis/run")
-getwd()
+setwd(gi_run)
