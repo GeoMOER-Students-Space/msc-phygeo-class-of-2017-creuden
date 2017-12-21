@@ -157,7 +157,7 @@ for (j in 1:(length(lasfiles))) {
   if (plotIt) {
     plot(zrLayer[[j]])
     plot(statLayer[[j]])
-    plot(fhd[[1]],  col=rev(heat.colors(10)),main="FHD Index")
+    plot(fhd[[j]],  col=rev(heat.colors(10)),main="FHD Index")
     plot(vdr[[j]],  col=rev(heat.colors(10)),main="VDR Index")
     
     # create mapview objects
@@ -174,7 +174,7 @@ for (j in 1:(length(lasfiles))) {
 }  
   
   # create names according to inputdata and methods/ranges
-  cat("save results to:")
+  
   mn<-paste( unlist(statList), collapse='_')
   zrn<-paste( unlist(zrList), collapse='_')
   lsf<-paste( unlist(tools::file_path_sans_ext(lasfiles)), collapse='_')
