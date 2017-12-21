@@ -65,7 +65,11 @@ res<- sapply(list.files(pattern="[.]R$",path=paste0(rootDir,"/fun"),full.names=T
 
 ### ---------------------------- Thematic  Settings ----------------------------
 
-#--> Create a list containing the las files in the input folder
+#--> basic correction of las files
+#    1) rescaling of las files to a 1 cm resolution
+#    2) resucing the oversampling of counts using lasoverage
+#    3) to to set projection with https://www.liblas.org/utilities/las2las.html (needs some adaption due to naming conflicts)
+# NOTE no correction of broken extents is performed this will be done during runtime
 if (correctLas){
   cat("\n: correcting las files...\n")
   lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
@@ -73,6 +77,7 @@ if (correctLas){
   lasTool("rescale",paste0(gi_input, lasfiles[j]))
   cat(":: reducing overlap patterns...\n")
   lasTool("lasoverage",paste0(gi_input, lasfiles[j],"_fixed.laz"))
+  # getting the new las file list
   lasfiles<-list.files(paste0(gi_input),pattern="_lapcor.las$", full.names=FALSE) 
 } else {
   #lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
@@ -181,16 +186,16 @@ for (j in 1:(length(lasfiles))) {
     plot(fhd[[j]],  col=rev(heat.colors(10)),main="FHD Index")
     plot(vdr[[j]],  col=rev(heat.colors(10)),main="VDR Index")
     
-    # create mapview objects
-    # m_fhd[[j]]<- mapview::mapview(fhd[[j]],
-    #                  legend = TRUE,
-    #                  alpha.regions = 0.3,
-    #                  layer.name="FHD Index")
-    # 
-    # m_vdr[[j]]<-mapview::mapview(vdr[[j]],
-    #                  legend = TRUE,
-    #                  alpha.regions = 0.3,
-    #                  layer.name="VDR Index")
+    #create mapview objects
+    m_fhd[[j]]<- mapview::mapview(fhd[[j]],
+                     legend = TRUE,
+                     alpha.regions = 0.6,
+                     layer.name="FHD Index")
+     
+    m_vdr[[j]]<-mapview::mapview(vdr[[j]],
+                     legend = TRUE,
+                     alpha.regions = 0.6,
+                     layer.name="VDR Index")
   }
 }  
   
