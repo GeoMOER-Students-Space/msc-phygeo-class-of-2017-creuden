@@ -98,6 +98,7 @@ r_in_lidar<- function(input=NULL,
               method = method,
               base_raster = base_raster,
               zrange = zrange,
+              class_filter =class_filter,
               echoCmd=TRUE,
               intern = FALSE,
               ignore.stderr = FALSE)

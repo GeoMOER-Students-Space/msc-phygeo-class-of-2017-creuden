@@ -120,6 +120,7 @@ for (j in 1:(length(lasfiles))) {
                method = "n",
                base_raster = paste0("dem_",j),
                zrange = c(zrange[[i]][1],zrange[[i]][2]),
+               class_filter = 13,
                resolution=gridsize,
                flags = c("d","overwrite","o","v")
     )
@@ -155,7 +156,7 @@ for (j in 1:(length(lasfiles))) {
   fhd[[j]]<- fun_fhd(zrLayer[[j]])
   
   # VDR vertical density ratio -> diversityindeces.R
-  vdr[[j]]<- fun_vdr(statLayer[[j]][[1]],statLayer[[j]][[2]])
+  vdr[[j]]<- fun_vdr(statLayer[[j]][[3]],statLayer[[j]][[2]])
   
   # if plot is true plot them
   if (plotIt) {
@@ -165,15 +166,15 @@ for (j in 1:(length(lasfiles))) {
     plot(vdr[[j]],  col=rev(heat.colors(10)),main="VDR Index")
     
     # create mapview objects
-    m_fhd[[j]]<- mapview::mapview(fhd[[j]],
-                     legend = TRUE,
-                     alpha.regions = 0.3,
-                     layer.name="FHD Index")
-    
-    m_vdr[[j]]<-mapview::mapview(vdr[[j]],
-                     legend = TRUE,
-                     alpha.regions = 0.3,
-                     layer.name="VDR Index")
+    # m_fhd[[j]]<- mapview::mapview(fhd[[j]],
+    #                  legend = TRUE,
+    #                  alpha.regions = 0.3,
+    #                  layer.name="FHD Index")
+    # 
+    # m_vdr[[j]]<-mapview::mapview(vdr[[j]],
+    #                  legend = TRUE,
+    #                  alpha.regions = 0.3,
+    #                  layer.name="VDR Index")
   }
 }  
   

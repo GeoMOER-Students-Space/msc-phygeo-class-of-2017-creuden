@@ -6,8 +6,10 @@
 
 fun_fhd <- function(a) {
   l <- raster::nlayers(a)
-  r <- -1 * ((a/a[[l]]) * log(a / (a/a[[l]])))
-  abs(sum(r[[1:(l-1)]]))
+  a[a<=0]=1
+  p_i <- a/a[[l]]
+  r <- p_i * log(a / p_i)
+  sum(r[[1:(l-1)]])
 }
 
 #slightly changed for GridMetric output (gives allready pi)
@@ -16,7 +18,7 @@ fun_fhd_fu <- function(b) {
   a <- subset(b, 1:6)
   l<-nlayers(a)
   r<- -1 * ((a[[l]]) * log(a[[l]]))
-  abs(sum(r[[1:(l-1)]]))
+  sum(r[[1:(l-1)]])
 }
 
 # Vertical distribution ratio (VDR)
@@ -28,5 +30,11 @@ fun_fhd_fu <- function(b) {
 # http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.111.2979&rep=rep1&type=pdf
 
 fun_vdr <- function(max,med) {
-  vdr <- (max[[1]] - med[[1]]) / max[[1]]
+  med[med < 0]=0
+  max[max < 0]=0
+  vdr <- (max - med) / max
+  vdr[is.na(vdr)]=0
+  vdr[is.infinite(vdr)]=0
+  vdr[vdr<0]=0
+  return(vdr)
 }
