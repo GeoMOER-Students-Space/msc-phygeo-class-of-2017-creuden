@@ -40,7 +40,7 @@ require(mapview)
 #--> the ~ is a substitute for the system variable HOME
 
 #--> projDir is general project folder  basic folder eg. C:/Dokumente/1_semester_MSCGEO/GIS/
-projDir<-"~/lehre/msc/active/msc-2017/"
+projDir<-"e:/R_proj/teaching/"
 #-->  rootFolder of the github repository 
 rootDir<-"msc-phygeo-class-of-2017-creuden"
 #--> current class
@@ -63,6 +63,7 @@ res<- sapply(list.files(pattern="[.]R$",path=paste0(rootDir,"/fun"),full.names=T
 
 
 
+
 ### ---------------------------- Thematic  Settings ----------------------------
 
 #--> basic correction of las files
@@ -74,10 +75,13 @@ if (correctLas){
   cat("\n: correcting las files...\n")
   lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
   cat(":: rescaling las files...\n")
-  lasTool("rescale",paste0(gi_input, lasfiles[j]))
-  cat(":: reducing overlap patterns...\n")
-  lasTool("lasoverage",paste0(gi_input, lasfiles[j],"_fixed.laz"))
-  # getting the new las file list
+  for (j in 1:(length(lasfiles))) {
+    lasTool("rescale",paste0(gi_input, lasfiles[j]))
+    cat(":: reducing overlap patterns...\n")
+    lasTool("lasoverage",paste0(gi_input, lasfiles[j],"_fixed.laz"))
+    # getting the new las file list
+    
+  }
   lasfiles<-list.files(paste0(gi_input),pattern="_lapcor.las$", full.names=FALSE) 
 } else {
   #lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 

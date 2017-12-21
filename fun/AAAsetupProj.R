@@ -355,4 +355,5 @@ getSessionPathes(filepath_git = rootDir,
 gdal<- link2GI::linkgdalUtils()
 
 #--> set working directory (just if you missed using golbal path variables as a backup)
-setwd(gi_run)
+setwd("E:/R_proj/data/gis/run")
+getwd()
