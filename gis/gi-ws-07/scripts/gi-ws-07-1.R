@@ -122,7 +122,7 @@ for (j in 1:(length(lasfiles))) {
 
   # create *temporyry* GRASS location
   ext<-lasTool(lasDir = paste0(gi_input, lasfiles[j]))
-  result<-link2GI::linkGRASS7(spatial_params = c(ext[2],ext[1],ext[4],ext[3],proj4),resolution = gridsize)
+  link2GI::linkGRASS7(search_path = "c:\\OSGeo4W64",spatial_params = c(ext[2],ext[1],ext[4],ext[3],proj4),resolution = gridsize)
 
   # create straightforward dem 
   r_in_lidar(input = paste0(gi_input,lasfiles[j]), 
