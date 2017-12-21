@@ -233,7 +233,7 @@ h_grass2tif <- function(runDir = NULL, layer = NULL, returnRaster = FALSE) {
 
 
 # fill holes
-fillDEM<- function (folder,layer){
+fillGaps<- function (folder,layer){
   cat(":: fill data gaps using gdal_fillnodata... \n")
   # export data to tif 
   h_grass2tif(folder, layer)

@@ -107,7 +107,7 @@ for (j in 1:(length(lasfiles))) {
              flags = c("e","n","overwrite","o","v"))
 
   # fill data gaps 
-  fillDEM(gi_input,paste0("dem_",j))
+  fillGaps(gi_input,paste0("dem_",j))
 
   # for each height break do
   for ( i in 1:(length(zrnames))) {
@@ -123,6 +123,8 @@ for (j in 1:(length(lasfiles))) {
                resolution=gridsize,
                flags = c("d","overwrite","o","v")
     )
+    # fill data gaps 
+    fillGaps(gi_input,zrnames[i])
   }
   
   # calculate the statistics as given  by the statList
@@ -133,7 +135,9 @@ for (j in 1:(length(lasfiles))) {
                base_raster = paste0("dem_",j),
                resolution = gridsize,
                flags = c("d","overwrite","o","v")
-    )}
+    )
+    fillGaps(gi_input,paste0(meth,"_veg"))
+    }
 
   
   # import and stack the data from GRASS back to R
