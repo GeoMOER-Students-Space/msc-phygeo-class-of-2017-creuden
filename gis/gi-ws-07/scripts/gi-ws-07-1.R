@@ -48,8 +48,10 @@ courseCode<-"gi"
 #--> current class session folder
 activeSessionFolder<-7
 
+# start preprocessing to correct las files
+correctLas = TRUE
 #--> create plots
-plotIt <- T
+plotIt <- TRUE
 
 #--> create complete rootDir string
 rootDir<-paste0(projDir,rootDir)
@@ -64,7 +66,18 @@ res<- sapply(list.files(pattern="[.]R$",path=paste0(rootDir,"/fun"),full.names=T
 ### ---------------------------- Thematic  Settings ----------------------------
 
 #--> Create a list containing the las files in the input folder
-lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
+if (correctLas){
+  cat("\n: correcting las files...\n")
+  lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
+  cat(":: rescaling las files...\n")
+  lasTool("rescale",paste0(gi_input, lasfiles[j]))
+  cat(":: reducing overlap patterns...\n")
+  lasTool("lasoverage",paste0(gi_input, lasfiles[j],"_fixed.laz"))
+  lasfiles<-list.files(paste0(gi_input),pattern="_lapcor.las$", full.names=FALSE) 
+} else {
+  #lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
+  lasfiles<-list.files(paste0(gi_input),pattern="_lapcor.las$", full.names=FALSE) 
+}
 
 
 #--> list of height pairs as used for slicing the las data
@@ -88,12 +101,13 @@ proj4="+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
 #      in the file grassLiDAR.R file. The main control structure is written below as a mixture of function 
 #      calls and generic R code
 #      
-
+cat(": starting calculations...\n")
 # define some list variables
 m_vdr <- m_fhd <-vdr <- fhd <- zrLayer <- statLayer <- list() 
 
 # for each existing las file do
 for (j in 1:(length(lasfiles))) {
+
   # create *temporyry* GRASS location
   ext<-lasTool(lasDir = paste0(gi_input, lasfiles[j]))
   result<-link2GI::linkGRASS7(spatial_params = c(ext[2],ext[1],ext[4],ext[3],proj4),resolution = gridsize)
@@ -196,4 +210,4 @@ for (j in 1:(length(lasfiles))) {
   cat("save results to: " ,paste0(gi_output,zrn,mn,"_vdr.RData\n"))
   cat("\nfinished")
 
-
+  

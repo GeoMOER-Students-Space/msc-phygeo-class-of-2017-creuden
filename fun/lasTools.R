@@ -41,6 +41,7 @@ lasTool <- function(  tool="lasinfo",
                       sub_size = "ultra_fine",
                       grid_size = "1.0", 
                       proj4 = "+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs",
+                      rscale= "0.01 0.01 0.01",
                       cores = "2") {
   path_fun<- fun
   path_run<- gi_run
@@ -68,6 +69,7 @@ lasTool <- function(  tool="lasinfo",
   lasground_new <- paste(cmd,"lasground_new-cli.exe",sep = "/")
   las2dem       <- paste(cmd,"las2dem-cli.exe",sep = "/")
   las2txt       <- paste(cmd,"las2txt-cli.exe",sep = "/")
+  lasoverage    <- paste(cmd,"lasoverage.exe",sep = "/")
   
   # check las / laz files laz will be preferred
   lasFileNames <- list.files(pattern = "[.]las$", path = lasDir, full.names = TRUE)
@@ -132,7 +134,7 @@ lasTool <- function(  tool="lasinfo",
   if (tool == "lasground"){ 
     cat(":: classify ground points (LAStools) ...\n")
     ret <- system(paste0(lasground_new,
-                         " -i ",path_run,"out.",extFN,
+                         " -i ",lasDir,
                          " -all_returns ",
                          " -bulge ", bulge,
                          " -skip_files",
@@ -147,7 +149,7 @@ lasTool <- function(  tool="lasinfo",
   if (tool == "las2dem"){ 
     # create lastools  DTM
     ret <- system(paste0(las2dem,
-                         " -i ",path_run,"*g.",extFN,
+                         " -i ",lasDir,
                          " -keep_class 2",
                          " -extra_pass",
                          " -step ",grid_size,
@@ -190,39 +192,36 @@ lasTool <- function(  tool="lasinfo",
     #spatial_params[5] <- grep(pattern = "+proj", ret, value = TRUE)
     
     return(unlist(spatial_params))}
+ 
+   if (tool == "rescale"){  
+  ret <- system(paste0(las2las,
+                       " -i ",lasDir,
+                       " -rescale 0.01 0.01 0.01 ", 
+                       " -auto_reoffset " ,
+                       " -o ", lasDir,"_fixed.laz" ), 
+                intern = TRUE, 
+                ignore.stderr = TRUE
+  )
   
+   }
   
+  if (tool=="lasoverage") {
+    ret <- system(paste0(lasoverage,
+                         " -i ",lasDir,
+                         " -step ", stepoverlap, 
+                         " -o ", lasDir,"_lapcor.las" ), 
+                  intern = FALSE, 
+                  ignore.stderr = FALSE)
+    }
 }
 
-getSpatialLASInfo <- function(lasinfo,lasFN){
-  
-  ret <- system(paste0(lasinfo,
-                       " -i ",lasFN,
-                       " -no_check  -stdout"),intern = TRUE)
-  paste0("wine ",fun,"LASTools/lasinfo-cli.exe ")
-  spatial_params<- list() 
-  
-  tmp <- grep(pattern = "min x y z", ret, value = TRUE)
-  tmp <- unlist(strsplit(tmp, ":"))
-  tmp <- unlist(strsplit(stringr::str_trim(tmp[2]), " "))
-  spatial_params[1] <- tmp[1]
-  spatial_params[2] <- tmp[2]
-  tmp <- grep(pattern = "max x y z", ret, value = TRUE)
-  tmp <- unlist(strsplit(tmp, ":"))
-  tmp <- unlist(strsplit(stringr::str_trim(tmp[2]), " "))
-  spatial_params[3] <- tmp[1]
-  spatial_params[4] <- tmp[2]
-  #spatial_params[5] <- grep(pattern = "+proj", ret, value = TRUE)
-  
-  return(unlist(spatial_params))
-}
-
-rescaleLas<- function(lasinfo,lasFN){
-ret <- system(paste0("wine ",fun,"LASTools/las2las-cli.exe ",
-                     " -i ",lasFN,
-                     "-rescale 0.01 0.01 0.01 ", 
-                     "-auto_reoffset " ,
-                     "-o ", lasFN,"_fixed.laz " ), 
-              intern = TRUE, 
-              ignore.stderr = TRUE
-)}
+# 1973  history
+# 1977  wine lascanopy.exe -i /home/creu/lehre/msc/active/msc-2017/data/gis/input/*.las  -dns -gap -b 50 75 -o stands.csv
+# 1978  wine lasinfo.exe /home/creu/lehre/msc/active/msc-2017/data/gis/input/U4775630.las -histo point_source 1
+# 1979  las2las -i /home/creu/lehre/msc/active/msc-2017/data/gis/input/U4775630.las -keep_point_source 314 -o U4775630_314.las
+# 1980  wine las2las.exe -i /home/creu/lehre/msc/active/msc-2017/data/gis/input/U4775630.las -keep_point_source 314 -o U4775630_314.las
+# 1981  wine lasoverage.exe -i /home/creu/lehre/msc/active/msc-2017/data/gis/input/U4775630.las -step 2 -o tile_overage.laz
+# 1982  wine lasoverage.exe -i /home/creu/lehre/msc/active/msc-2017/data/gis/input/U4775630.las -step 2 -o U4775630_clean.las
+# 1983  history
+# 
+# 

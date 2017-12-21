@@ -245,3 +245,5 @@ fillGaps<- function (folder,layer){
   # write filled data back to GRASS
   execGRASS('r.in.gdal',  flags=c('o',"overwrite"), input=paste0(folder,"/",layer,".tif"),  output=layer, band=1)
 }
+
+
