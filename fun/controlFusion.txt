@@ -11,6 +11,7 @@ if (Sys.info()["sysname"] == "Windows") {
   pi<-gi_input
   pr<-gi_run
   p0<-gi_output
+  searchPathGrass = "c:\\OSGeo4W64"
   
   #--> Create a list containing the las files in the input folder
   lasfiles<-list.files(gi_input, pattern=".las$", full.names=FALSE)   
