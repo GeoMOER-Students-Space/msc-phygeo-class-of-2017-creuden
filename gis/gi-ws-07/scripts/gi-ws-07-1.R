@@ -40,7 +40,7 @@ require(mapview)
 #--> the ~ is a substitute for the system variable HOME
 
 #--> projDir is general project folder  basic folder eg. C:/Dokumente/1_semester_MSCGEO/GIS/
-projDir<-"~/lehre/msc/active/msc-2017/"
+projDir<-"e:/R_proj/teaching/"
 #-->  rootFolder of the github repository 
 rootDir<-"msc-phygeo-class-of-2017-creuden"
 #--> current class
@@ -49,7 +49,7 @@ courseCode<-"gi"
 activeSessionFolder<-7
 
 # start preprocessing to correct las files
-correctLas = TRUE
+correctLas = FALSE
 #--> create plots
 plotIt <- TRUE
 
@@ -60,6 +60,7 @@ rootDir<-paste0(projDir,rootDir)
 #--> if necessary you may adapt it to your needs
 #--> make a list of all functions in the corresponding function folder and source these functions
 res<- sapply(list.files(pattern="[.]R$",path=paste0(rootDir,"/fun"),full.names=TRUE),FUN=source)
+
 
 
 
@@ -77,10 +78,14 @@ if (correctLas){
   cat("\n: correcting las files...\n")
   lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
   cat(":: rescaling las files...\n")
-  lasTool("rescale",paste0(gi_input, lasfiles[j]))
-  cat(":: reducing overlap patterns...\n")
-  lasTool("lasoverage",paste0(gi_input, lasfiles[j],"_fixed.laz"))
-  # getting the new las file list
+  for (j in 1:(length(lasfiles))) {
+    lasTool("rescale",paste0(gi_input, lasfiles[j]))
+    cat(":: reducing overlap patterns...\n")
+    lasTool("lasoverage",paste0(gi_input, lasfiles[j],"_fixed.laz"))
+    # getting the new las file list
+    
+  }
+  correctLas = FALSE
   lasfiles<-list.files(paste0(gi_input),pattern="_lapcor.las$", full.names=FALSE) 
 } else {
   #lasfiles<-list.files(paste0(gi_input),pattern=".las$", full.names=FALSE) 
@@ -121,7 +126,7 @@ for (j in 1:(length(lasfiles))) {
 
   # create *temporyry* GRASS location
   ext<-lasTool(lasDir = paste0(gi_input, lasfiles[j]))
-  result<-link2GI::linkGRASS7(spatial_params = c(ext[2],ext[1],ext[4],ext[3],proj4),resolution = gridsize)
+  link2GI::linkGRASS7(search_path = searchPathGrass,spatial_params = c(ext[2],ext[1],ext[4],ext[3],proj4),resolution = gridsize)
 
   # create straightforward dem 
   r_in_lidar(input = paste0(gi_input,lasfiles[j]), 

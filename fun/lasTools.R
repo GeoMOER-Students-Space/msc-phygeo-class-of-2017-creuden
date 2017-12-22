@@ -42,6 +42,7 @@ lasTool <- function(  tool="lasinfo",
                       grid_size = "1.0", 
                       proj4 = "+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs",
                       rscale= "0.01 0.01 0.01",
+                      stepoverlap=2,
                       cores = "2") {
   path_fun<- fun
   path_run<- gi_run

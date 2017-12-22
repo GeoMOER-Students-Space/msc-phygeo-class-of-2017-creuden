@@ -239,9 +239,9 @@ fillGaps<- function (folder,layer){
   # export data to tif 
   h_grass2tif(folder, layer)
   # fill data holes
-  ret <- system(paste0("gdal_fillnodata.py ",
-                       folder,"/",layer,".tif ",
-                       folder,"/",layer,".tif "),intern = TRUE)
+  ret <- system2(command = "gdal_fillnodata.py ",args = 
+                 paste0(folder,"/",layer,".tif ",
+                       folder,"/",layer,".tif "))
   # write filled data back to GRASS
   execGRASS('r.in.gdal',  flags=c('o',"overwrite"), input=paste0(folder,"/",layer,".tif"),  output=layer, band=1)
 }
