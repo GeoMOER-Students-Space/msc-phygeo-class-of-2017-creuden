@@ -199,7 +199,7 @@ lasTool <- function(  tool="lasinfo",
                        " -i ",lasDir,
                        " -rescale 0.01 0.01 0.01 ", 
                        " -auto_reoffset " ,
-                       " -o ", lasDir,"_fixed.laz" ), 
+                       " -o ", lasDir,"_fixed.las" ), 
                 intern = TRUE, 
                 ignore.stderr = TRUE
   )
@@ -210,7 +210,7 @@ lasTool <- function(  tool="lasinfo",
     ret <- system(paste0(lasoverage,
                          " -i ",lasDir,
                          " -step ", stepoverlap, 
-                         " -o ", lasDir,"_lapcor.las" ), 
+                         " -o ", lasDir,"_lopcor.las" ), 
                   intern = FALSE, 
                   ignore.stderr = FALSE)
     }

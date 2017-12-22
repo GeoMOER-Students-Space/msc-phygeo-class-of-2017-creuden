@@ -196,21 +196,6 @@ r_in_lidar<- function(input=NULL,
   }
 }
 
-# creates names and ranges from a simple list for zrange cuts
-makenames<-function(zr ) {
-  class<-list()
-  zrange<-list()
-  for ( i in 1:(length(zr[[1]]))) {
-    if (i == length(zr[[1]])){
-      class[[i]]<-c(paste0('class',zr[[1]][1],zr[[1]][length(zr[[1]])]))
-      zrange[[i]]<-c(zr[[1]][1], zr[[1]][length(zr[[1]])])  
-    } else {
-      class[[i]]<-c(paste0('class',zr[[1]][i],zr[[1]][i+1]))
-      zrange[[i]]<-c(zr[[1]][i],zr[[1]][i+1])
-    }
-  }
-  return(list(unlist(class),zrange))
-}
 
 #' converts GRASS raster to geotiff
 #' @description converts GRASS raster to geotiff
@@ -231,19 +216,5 @@ h_grass2tif <- function(runDir = NULL, layer = NULL, returnRaster = FALSE) {
   if (returnRaster) return(raster::raster(paste0(runDir,"/",layer,".tif")))
 }
 
-
-
-# fill holes
-fillGaps<- function (folder,layer){
-  cat(":: fill data gaps using gdal_fillnodata... \n")
-  # export data to tif 
-  h_grass2tif(folder, layer)
-  # fill data holes
-  ret <- system2(command = "gdal_fillnodata.py ",args = 
-                 paste0(folder,"/",layer,".tif ",
-                       folder,"/",layer,".tif "))
-  # write filled data back to GRASS
-  execGRASS('r.in.gdal',  flags=c('o',"overwrite"), input=paste0(folder,"/",layer,".tif"),  output=layer, band=1)
-}
 
 

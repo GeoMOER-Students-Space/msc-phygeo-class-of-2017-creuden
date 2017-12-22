@@ -333,14 +333,14 @@ createMocFolders<- function(filepath_git,
 
 # create project structure and export global pathes
 #--> create/add new folder(s) 
-createMocFolders(rootDir, 
+createMocFolders(projfolder, 
                  ccourse = "gi", 
                  csess = activeSessionFolder
 )
 
 #--> create *global* path variables for the current session (they won't work in doParallel or foreach)
-getSessionPathes(filepath_git = rootDir, 
-                 filepath_data = paste0(projDir,"data"),
+getSessionPathes(filepath_git = projfolder, 
+                 filepath_data = paste0(rootDir,"data"),
                  sessNo = activeSessionFolder,
                  courseCode = courseCode,
                  dataWorkingFolder=c("run/","input/","output/","GRASS7/","GRASS7"))
