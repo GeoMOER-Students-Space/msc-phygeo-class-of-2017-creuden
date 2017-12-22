@@ -68,7 +68,10 @@ res<- sapply(list.files(pattern="[.]R$",path=paste0(rootDir,"/fun"),full.names=T
 #--> basic correction of las files
 #    1) rescaling of las files to a 1 cm resolution
 #    2) resucing the oversampling of counts using lasoverage
-#    3) to to set projection with https://www.liblas.org/utilities/las2las.html (needs some adaption due to naming conflicts)
+#    3) to to set projection with https://www.liblas.org/utilities/las2las.html 
+#       (needs some adaption due to naming conflicts)
+#       las2las -i in.las -o out.laz -utm 32N -vertical_wgs84
+
 # NOTE no correction of broken extents is performed this will be done during runtime
 if (correctLas){
   cat("\n: correcting las files...\n")
