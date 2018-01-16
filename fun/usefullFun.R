@@ -65,3 +65,9 @@ extractTrainPixelValues<- function(imgStack=NULL,trainData=NULL,responseCol=NULL
   names(dfTpv)<-gsub(names(dfTpv),pattern = "\\.",replacement = "_")
   return(dfTpv)
 }
+
+# calculate mode
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
