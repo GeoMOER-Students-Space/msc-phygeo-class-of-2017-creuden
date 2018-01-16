@@ -230,10 +230,15 @@ for (j in 1:(length(lasfiles))) {
   # horizontal diversity layer 2
   hdl2[[j]]<-(stack(lapply(unstack(statLayer[[j]]),
                                function(x){focal(x,w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),na.rm=T,fun=var)})))
-  
+  Mode<-function(x) {
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+  }
   # gap layer
-  gapl[[j]]<-focal(unstack(statLayer[[j]][[1]]),w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),na.rm=T,fun=Mode)
+  gapl[[j]]<-focal(statLayer[[j]][[1]],w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),Mode)
   
+  # reclass
+  gapl[[j]][gapl[[j]]> 3]<-0
   
     
   # if plot is true plot them
