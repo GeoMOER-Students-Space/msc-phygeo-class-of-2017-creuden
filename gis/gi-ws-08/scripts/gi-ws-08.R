@@ -115,7 +115,7 @@ if (correctLas){
     # getting the new las file list
     
   }
-  correctLas = FALSE
+  correctLas = TRUE
   lasfiles<-list.files(paste0(gi_input),pattern="_lopcor.las_fixed.las$", full.names=FALSE) 
 } else {
 
@@ -136,7 +136,7 @@ zrnames<- makenames(zrList)[[1]]
 statList <- list("max", "median","range")
 
 #--> target grid sizec(0,5,10,15,20,50)
-gridsize <- 10
+gridsize <- 1
 # horizontal aggregation level
 focalSize <- 3
 #--> projection string 
@@ -215,6 +215,7 @@ for (j in 1:(length(lasfiles))) {
   statLayer[[j]] <- stack(lapply(statList ,
                             function(x){raster::raster(rgrass7::readRAST(paste0(x,"_veg"),NODATA=-9999))})
                           )
+  cat(": starting calculation of indices...\n")
   # calculate indices
   # FHD foliage height density  -> diversityindeces.R
   fhd[[j]]<- fun_fhd(zrLayer[[j]])
@@ -222,27 +223,28 @@ for (j in 1:(length(lasfiles))) {
   # VDR vertical density ratio -> diversityindeces.R
   vdr[[j]]<- fun_vdr(statLayer[[j]][[3]],statLayer[[j]][[2]])
 
-  
+  # cat(": starting calculation of horizontal filtering ... \n")
   # horizontal diversity layer 1
-  hdl1[[j]]<-(focal(fhd[[j]],w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),na.rm=T,fun=var))
+  #hdl1[[j]]<-(focal(fhd[[j]],w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),na.rm=T,fun=var))
   
   
   # horizontal diversity layer 2
-  hdl2[[j]]<-(stack(lapply(unstack(statLayer[[j]]),
-                               function(x){focal(x,w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),na.rm=T,fun=var)})))
-  Mode<-function(x) {
-    ux <- unique(x)
-    ux[which.max(tabulate(match(x, ux)))]
-  }
-  # gap layer
-  gapl[[j]]<-focal(statLayer[[j]][[1]],w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),Mode)
-  
-  # reclass
-  gapl[[j]][gapl[[j]]> 3]<-0
+  #hdl2[[j]]<-(stack(lapply(unstack(statLayer[[j]]),
+  #                             function(x){focal(x,w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),na.rm=T,fun=var)})))
+  # Mode<-function(x) {
+  #   ux <- unique(x)
+  #   ux[which.max(tabulate(match(x, ux)))]
+  # }
+  # # gap layer
+  # gapl[[j]]<-focal(statLayer[[j]][[1]],w=matrix(1/focalSize*focalSize,nrow = focalSize,ncol = focalSize),Mode)
+  # 
+  # # reclass
+  # gapl[[j]][gapl[[j]]> 3]<-0
   
     
   # if plot is true plot them
   if (plotIt) {
+    cat(": starting plotting ... \n")
     plot(zrLayer[[j]])
     plot(statLayer[[j]])
     plot(fhd[[j]],  col=rev(heat.colors(10)),main="FHD Index")
@@ -267,16 +269,16 @@ for (j in 1:(length(lasfiles))) {
   zrn<-paste( unlist(zrList), collapse='_')
   lsf<-paste( unlist(tools::file_path_sans_ext(lasfiles)), collapse='_')
   # save the results
-  save(zrLayer,file = paste0(gi_output,zrn,lsf,".RData"))
-  save(statLayer,file = paste0(gi_output,zrn,mn,".RData"))
+  save(zrLayer,file = paste0(gi_output,zrn,"horizon.RData"))
+  save(statLayer,file = paste0(gi_output,zrn,"stat.RData"))
   # save the results
-  save(fhd,file = paste0(gi_output,zrn,lsf,"_fhd",".RData"))
-  save(vdr,file = paste0(gi_output,zrn,mn,"_vdr",".RData"))
+  save(fhd,file = paste0(gi_output,zrn,"_fhd",".RData"))
+  save(vdr,file = paste0(gi_output,zrn,"_vdr",".RData"))
   
-  cat("save results to: " ,paste0(gi_output,zrn,lsf,".RData\n"))
-  cat("save results to: " ,paste0(gi_output,zrn,mn,".RData\n"))
-  cat("save results to: " ,paste0(gi_output,zrn,lsf,"_fhd.RData\n"))
-  cat("save results to: " ,paste0(gi_output,zrn,mn,"_vdr.RData\n"))
+  cat("save results to: " ,paste0(gi_output,zrn,".RData\n"))
+  cat("save results to: " ,paste0(gi_output,zrn,".RData\n"))
+  cat("save results to: " ,paste0(gi_output,zrn,"_fhd.RData\n"))
+  cat("save results to: " ,paste0(gi_output,zrn,"_vdr.RData\n"))
   cat("\nfinished")
 
   

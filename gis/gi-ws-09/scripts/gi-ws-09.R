@@ -65,8 +65,8 @@ getSessionPathes(filepath_git = filepath_base, sessNo = activeSession,courseCode
 setwd(pd_gi_run)
 # crop window
 crop= TRUE
-                    
-ext<-raster::extent(477750, 478220, 5632340,5632760)
+ext<-raster::extent(477248.00,477468.00,5631722.00,5631891.00)                    
+#ext<-raster::extent(477750, 478220, 5632340,5632760)
 # define the used input file(s)
 dsmFn  <- "geonode-lidar_dsm_01m.tif"  # surface model
 demFn  <- "geonode-lidar_dem_01m.tif"  # elevation model
@@ -118,7 +118,7 @@ link2GI::linkGRASS7(demR)
 #             within an imagery and uses a decision tree method to grow individual crowns
 #             all itc_ params are used
 #
-segType       <- 3
+segType       <- 2
 #
 # ------- gauss filter -------------------------------------------------------
 gauss         <- FALSE # if TRUE chm filtering will be applied as first step
@@ -128,7 +128,7 @@ gradius       <- 3     # radius of Gaussian filter
 # ---------- set tree thresholds ---------------------------------------------
 #
 #
-minTreeAlt    <- 3   # -thresholdfor minimum tree altitude in meter
+minTreeAlt    <- 7   # -thresholdfor minimum tree altitude in meter
 thtreeNodes   <- 6   # minimum number of ldd connections
 # sqm crowns
 crownMinArea  <- 5   #(approx 1.25 m diameter)
@@ -287,6 +287,7 @@ if (segType == 1) {
   ch <- rgdal::readOGR(pd_gi_run,"crownsHeight")
   names(ch)<-gsub(names(ch),pattern = "\\NAME",replacement = "NAME1")
   names(ch)<-gsub(names(ch),pattern = "\\ID",replacement = "ID1")
+  names(ch)<-gsub(names(ch),pattern = "\\VALUE",replacement = "VALUE1")
   names(ch)<-gsub(names(ch),pattern = "\\crownsHeigh",replacement = "crownsHeigh1")
   stats  <- rgdal::readOGR(pd_gi_run,"crownsHeightStat")
   ch@data <- cbind(ch@data,stats@data)
@@ -332,9 +333,9 @@ if (segType == 1) {
                        " -l rawTrees",
                        " -a VALUE"),intern = TRUE)
   ret <- system(paste0("gdal_rasterize ",
-                       pd_gi_run,"crowns.shp ", 
+                       pd_gi_run,"rawTrees.shp ", 
                        pd_gi_run,"maskCrown.tif",
-                       " -l crowns",
+                       " -l rawTrees",
                        " -burn 1"),intern = TRUE)
   rawTrees  <- raster::raster(paste0(pd_gi_run,"rawTrees.tif"))
   maskCrown <- raster::raster(paste0(pd_gi_run,"maskCrown.tif"))
@@ -424,17 +425,18 @@ if (segType == 1) {
                        " -CLASS_ID 1.000000",
                        " -SPLIT 1"),intern = TRUE)
   
-  trees_crowns_3 <- classifyTreeCrown(crownFn = paste0(pd_gi_run,"crownsHeight.shp"),segType = 2, 
+  trees_crowns_3 <- classifyTreeCrown(crownFn = paste0(pd_gi_run,"crownsHeight.shp"),segType = 2,
                                       funNames = c("eccentricityboundingbox","solidity"),
-                                      minTreeAlt = minTreeAlt, 
-                                      crownMinArea = crownMinArea, 
-                                      crownMaxArea = crownMaxArea, 
-                                      solidity = solidity, 
+                                      minTreeAlt = minTreeAlt,
+                                      crownMinArea = crownMinArea,
+                                      crownMaxArea = crownMaxArea,
+                                      solidity = solidity,
                                       WLRatio = WLRatio)
+
   
+  pixvalues <- basicExtraction(x = chmR,fN = trees_crowns_3[[2]],responseCat = "ID")
   
-  pixvalues <- basicExtraction(x = chmR,fN = trees_crowns_2[[2]],responseCat = "ID")
-  
+  mapview::mapview(trees_crowns_3[[2]],cex = 2,alpha.regions = 0.3,lwd = 1) 
   
     #  TODO postclassification stuff
     

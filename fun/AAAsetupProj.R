@@ -367,7 +367,7 @@ if (Sys.info()["sysname"] == "Windows") {
 } else {
   stop("no idea about Mac...\n")
 }
-  otb<- link2GI::linkOTB()
+otb<- link2GI::linkOTB()
 # check GDAL binaries and start gdalUtils
 gdal<- link2GI::linkgdalUtils()
 
